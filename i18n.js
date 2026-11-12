@@ -84,6 +84,11 @@ const EN = {
   '클릭하여 항목 선택 및 {pts}포인트 할당': 'Click to choose an option and allocate {pts} points',
   '클릭하여 {pts}포인트 할당': 'Click to allocate {pts} points',
   '확정 {n}회': 'Guaranteed ×{n}',
+  '새 빌드로 저장': 'Save as new build',
+  '불러온 빌드: {name}': 'Loaded build: {name}',
+  '덮어쓰기': 'Overwrite',
+  '기존 내용이 사라집니다. 한 번 더': 'This replaces the old version. Click again',
+  '"{name}"에 덮어썼습니다.': 'Overwrote "{name}".',
   '확정 {n}회 + {r}% 확률로 1회 더': 'Guaranteed ×{n} + {r}% chance for 1 more',
 };
 function t(ko, vars) {

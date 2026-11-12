@@ -689,7 +689,7 @@ document.getElementById('clear').onclick = () => {
   document.getElementById('confirm-cancel').focus();
 };
 document.getElementById('confirm-cancel').onclick = closeConfirm;
-document.getElementById('confirm-ok').onclick = () => { closeConfirm(); picked.clear(); choice.clear(); selectionChanged(); };
+document.getElementById('confirm-ok').onclick = () => { closeConfirm(); activeSave = null; picked.clear(); choice.clear(); selectionChanged(); };
 confirmOverlay.addEventListener('mousedown', e => { if (e.target === confirmOverlay) closeConfirm(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !confirmOverlay.hidden) { e.stopPropagation(); closeConfirm(); } }, true);
 document.getElementById('toggle').onclick = () => {
@@ -782,13 +782,23 @@ function applyBuild(code) {
   return true;
 }
 let armed = null; // 두 번 눌러 확인하는 버튼 (불러오기/삭제)
+let activeSave = null; // 마지막으로 불러오거나 저장한 빌드. 이후 "덮어쓰기"의 대상이 된다.
 function renderSaves() {
   const list = readSaves();
+  const active = list.find(x => x.id === activeSave);
+  if (!active) activeSave = null;
+  document.getElementById('saves-active').hidden = !active;
+  document.getElementById('saves-save').textContent = t(active ? '새 빌드로 저장' : '현재 선택 저장');
+  if (active) {
+    document.getElementById('saves-active-label').textContent = t('불러온 빌드: {name}', { name: active.name });
+    document.getElementById('saves-overwrite').textContent = t('덮어쓰기');
+  }
   document.getElementById('saves-badge').textContent = list.length;
   document.getElementById('saves-empty').hidden = list.length > 0;
   savesList.innerHTML = '';
   for (const item of list) {
     const li = document.createElement('li');
+    if (item.id === activeSave) li.className = 'active';
     const info = document.createElement('div');
     info.className = 'save-info';
     const nameRow = document.createElement('div');
@@ -834,7 +844,7 @@ function renderSaves() {
     load.onclick = () => {
       if (picked.size && armed !== load) { arm(load, t('현재 선택이 바뀝니다. 한 번 더')); return; }
       armed = null;
-      if (applyBuild(item.code)) { saveNotice(t('"{name}"을(를) 불러왔습니다.', { name: item.name })); closeSaves(); }
+      if (applyBuild(item.code)) { activeSave = item.id; saveNotice(t('"{name}"을(를) 불러왔습니다.', { name: item.name })); closeSaves(); }
       else saveNotice(t('트리가 업데이트되어 이 빌드는 불러올 수 없습니다.'));
     };
     const del = document.createElement('button');
@@ -867,11 +877,24 @@ document.getElementById('saves-form').onsubmit = e => {
   const list = readSaves();
   if (list.length >= SAVE_MAX) { saveNotice(t('저장은 최대 {max}개까지 가능합니다. 하나를 삭제해 주세요.', { max: SAVE_MAX })); return; }
   const name = savesName.value.trim() || t('빌드 {n}', { n: list.length + 1 });
-  list.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name, code: encodeBuild(), count: picked.size, t: Date.now() });
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  list.unshift({ id, name, code: encodeBuild(), count: picked.size, t: Date.now() });
   if (!writeSaves(list)) { saveNotice(t('이 브라우저에서는 저장할 수 없습니다. (저장 공간 차단 또는 시크릿 모드)')); return; }
   savesName.value = '';
+  activeSave = id; // 방금 저장한 빌드를 이어서 수정하고 덮어쓸 수 있다
   renderSaves();
   saveNotice(t('저장했습니다.'));
+};
+document.getElementById('saves-overwrite').onclick = function () {
+  const list = readSaves(), item = list.find(x => x.id === activeSave);
+  if (!item) return;
+  if (!picked.size) { saveNotice(t('선택한 노드가 없어 저장할 수 없습니다.')); return; }
+  if (armed !== this) { arm(this, t('기존 내용이 사라집니다. 한 번 더')); return; }
+  armed = null;
+  item.code = encodeBuild(); item.count = picked.size; item.t = Date.now();
+  if (!writeSaves(list)) { saveNotice(t('이 브라우저에서는 저장할 수 없습니다. (저장 공간 차단 또는 시크릿 모드)')); return; }
+  renderSaves();
+  saveNotice(t('"{name}"에 덮어썼습니다.', { name: item.name }));
 };
 renderSaves();
 document.getElementById('save-open').onclick = () => { openSaves(); savesName.focus(); };
