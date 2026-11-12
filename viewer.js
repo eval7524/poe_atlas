@@ -773,12 +773,43 @@ function renderSaves() {
     const li = document.createElement('li');
     const info = document.createElement('div');
     info.className = 'save-info';
+    const nameRow = document.createElement('div');
+    nameRow.className = 'save-name';
     const name = document.createElement('strong');
     name.textContent = item.name;
+    const edit = document.createElement('button');
+    edit.className = 'save-edit';
+    edit.type = 'button';
+    edit.title = '이름 수정';
+    edit.setAttribute('aria-label', '이름 수정');
+    edit.textContent = '✎';
+    edit.onclick = () => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 30;
+      input.value = item.name;
+      input.className = 'save-rename';
+      let done = false;
+      const finish = ok => {
+        if (done) return;
+        done = true;
+        const v = input.value.trim();
+        if (ok && v && v !== item.name) {
+          writeSaves(readSaves().map(x => x.id === item.id ? { ...x, name: v } : x));
+        }
+        renderSaves();
+      };
+      input.onkeydown = e => { if (e.key === 'Enter') finish(true); else if (e.key === 'Escape') { e.stopPropagation(); finish(false); } };
+      input.onblur = () => finish(true);
+      nameRow.replaceChildren(input);
+      input.focus();
+      input.select();
+    };
+    nameRow.append(name, edit);
     const meta = document.createElement('small');
     const d = new Date(item.t);
     meta.textContent = item.count + ' / ' + MAX_PICK + '개 · ' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-    info.append(name, meta);
+    info.append(nameRow, meta);
     const load = document.createElement('button');
     load.className = 'tool-button on';
     load.textContent = '불러오기';

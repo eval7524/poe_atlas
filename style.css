@@ -195,3 +195,9 @@ canvas.drag { cursor: grabbing; }
 .confirm-actions .tool-button { min-height: 34px; padding: 0 16px; font-size: 12px; }
 .tool-button.danger-solid { border-color: rgba(233,120,120,.7); background: rgba(233,90,90,.28); color: #ffe1e1; }
 .tool-button.danger-solid:hover { background: rgba(233,90,90,.45); color: #fff; }
+.save-name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.save-name strong { min-width: 0; }
+.save-edit { flex: 0 0 auto; width: 22px; height: 22px; padding: 0; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #858ba2; cursor: pointer; font-size: 12px; line-height: 1; }
+.save-edit:hover { border-color: rgba(167,139,250,.4); background: rgba(139,108,240,.14); color: #e3dcff; }
+.save-rename { width: 100%; min-width: 0; height: 26px; padding: 0 8px; border: 1px solid rgba(167,139,250,.6); border-radius: 6px; background: #0f111a; color: var(--text); font-size: 12px; }
+.save-rename:focus { outline: none; }
