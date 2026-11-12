@@ -661,7 +661,19 @@ function updatePanel() {
   }
 }
 
-document.getElementById('clear').onclick = () => { picked.clear(); choice.clear(); selectionChanged(); };
+// 초기화는 실수로 누르기 쉬우니 확인 창을 거친다.
+const confirmOverlay = document.getElementById('confirm-overlay');
+function closeConfirm() { confirmOverlay.hidden = true; }
+document.getElementById('clear').onclick = () => {
+  if (!picked.size) return;
+  document.getElementById('confirm-text').textContent = '선택한 패시브 ' + picked.size + '개가 모두 지워집니다. 이 작업은 되돌릴 수 없습니다.';
+  confirmOverlay.hidden = false;
+  document.getElementById('confirm-cancel').focus();
+};
+document.getElementById('confirm-cancel').onclick = closeConfirm;
+document.getElementById('confirm-ok').onclick = () => { closeConfirm(); picked.clear(); choice.clear(); selectionChanged(); };
+confirmOverlay.addEventListener('mousedown', e => { if (e.target === confirmOverlay) closeConfirm(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !confirmOverlay.hidden) { e.stopPropagation(); closeConfirm(); } }, true);
 document.getElementById('toggle').onclick = () => {
   panel.classList.toggle('hidden');
   document.getElementById('toggle').classList.toggle('on', !panel.classList.contains('hidden'));
