@@ -96,6 +96,8 @@ canvas.drag { cursor: grabbing; }
 #picked li select { flex-basis: 100%; max-width: 100%; margin: 3px 0 2px 7px; padding: 6px 8px; border: 1px solid rgba(167,139,250,.24); border-radius: 7px; outline: 0; background: #151725; color: #c4b5fd; font-size: 10px; }
 .panel-footer { display: flex; align-items: center; gap: 7px; margin-top: auto; padding-top: 18px; color: #70768c; font-size: 9px; line-height: 1.5; }
 .footer-dot { width: 5px; height: 5px; flex: 0 0 auto; background: #9c86ef; box-shadow: none; }
+.privacy-note { margin: 8px 0 0; color: #5f657c; font-size: 9px; line-height: 1.6; }
+.privacy-note a { color: #7f86a3; text-decoration: underline; }
 #tip { position: fixed; z-index: 7; display: none; max-width: 400px; padding: 11px 13px; border: 1px solid rgba(167,139,250,.42); border-radius: 10px; background: rgba(16,17,27,.97); box-shadow: 0 12px 32px rgba(0,0,0,.4); pointer-events: none; font-size: 13px; line-height: 1.6; backdrop-filter: blur(12px); }
 #tip b { display: block; margin-bottom: 5px; color: #e6dcff; font-size: 14px; }
 #tip .stat { color: #b8a8f4; white-space: pre-line; }
