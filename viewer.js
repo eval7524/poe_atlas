@@ -11,6 +11,8 @@ const PINNED_STATS = [
   { re: /^(\d+(?:\.\d+)?)% increased Threads found in your Maps$/, label: '지도에서 발견하는 기억의 실낱' },
   { re: /^(\d+(?:\.\d+)?)% increased Maps found in your Maps$/, label: '플레이어의 지도에서 지도 발견' },
   { re: /^(\d+(?:\.\d+)?)% increased number of Magic Monsters in your Maps$/, label: '지도 내 마법 몬스터 수' },
+  { re: /^(\d+(?:\.\d+)?)% increased number of Rare Monsters in your Maps$/, label: '지도 내 희귀 몬스터 수' },
+  { re: /^(\d+(?:\.\d+)?)% increased Pack Size in your Maps$/, label: '지도 내 무리 규모' },
 ];
 let TOP = 36;
 
@@ -530,7 +532,7 @@ function updatePanel() {
     eff.append(li);
   }
 
-  // 지도 보너스 칸: 자주 보는 4가지 합산값을 맨 위에 고정해서 보여준다.
+  // 지도 보너스 칸: 자주 보는 합산값을 맨 위에 고정해서 보여준다.
   const pinnedBox = document.getElementById('pinned');
   pinnedBox.innerHTML = '<div class="pinned-title">지도 보너스</div>';
   for (const { re, label } of PINNED_STATS) {
