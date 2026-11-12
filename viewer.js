@@ -216,6 +216,27 @@ function themeOf(n) {
   return set;
 }
 
+// 노드 강조 표시. 크기는 노드 크기에 비례시키고, 화면에서 아주 작게 보이는 노드는
+// 서로 겹치지 않도록 작은 점으로 그린다. (주제 강조와 검색 결과 강조가 함께 쓴다)
+function markNode(n, color, rgb) {
+  const r = radius(n), px = r * zoom;
+  ctx.beginPath();
+  if (px < 6) {
+    ctx.fillStyle = `rgba(${rgb},.9)`;
+    ctx.arc(n.x, n.y, Math.max(px * 1.1, 3) / zoom, 0, Math.PI * 2);
+    ctx.fill();
+    return;
+  }
+  ctx.fillStyle = `rgba(${rgb},.22)`;
+  ctx.arc(n.x, n.y, r * 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(2, px * 0.08) / zoom;
+  ctx.beginPath();
+  ctx.arc(n.x, n.y, r * 1.2, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
 function render() {
   pending = false;
   const w = canvas.width / dpr, h = canvas.height / dpr;
@@ -263,30 +284,11 @@ function render() {
   for (const n of picked.values()) ring(n, n.v && !choice.has(n.id) ? '#e07a30' : '#e8c060', 2.5, 2);
   if (preview) for (const id of preview.add || preview.remove)
     ring(byId.get(id), preview.add ? '#8fd080' : '#e07050', 2.5, 2);
-  for (const n of matches) ring(n, n === matches[cursor] ? '#ffffff' : '#4fc3ff', 2.5, 6);
+  for (const n of matches) n === matches[cursor] ? markNode(n, '#ffffff', '255,255,255') : markNode(n, '#4fc3ff', '79,195,255');
   const theme = themeOf(hover);
   if (theme) {
-    // 강조 크기는 노드 크기에 비례시킨다. 화면에서 아주 작게 보일 때는 겹쳐 보이지 않도록 작은 점으로 그린다.
-    const glow = n => {
-      const r = radius(n), px = r * zoom;
-      ctx.fillStyle = 'rgba(255,138,216,.9)';
-      ctx.strokeStyle = '#ff8ad8';
-      ctx.beginPath();
-      if (px < 6) {
-        ctx.arc(n.x, n.y, Math.max(px * 1.1, 3) / zoom, 0, Math.PI * 2);
-        ctx.fill();
-        return;
-      }
-      ctx.fillStyle = 'rgba(255,138,216,.22)';
-      ctx.arc(n.x, n.y, r * 1.2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = Math.max(2, px * 0.08) / zoom;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, r * 1.2, 0, Math.PI * 2);
-      ctx.stroke();
-    };
-    theme.related.forEach(glow);
-    theme.hubs.forEach(n => { if (n !== hover) glow(n); });
+    theme.related.forEach(n => markNode(n, '#ff8ad8', '255,138,216'));
+    theme.hubs.forEach(n => { if (n !== hover) markNode(n, '#ff8ad8', '255,138,216'); });
   }
   if (hover) ring(hover, '#e8d8a8', 2, 4);
 
