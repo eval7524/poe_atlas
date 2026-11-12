@@ -5,6 +5,13 @@ const header = document.querySelector('header');
 const panel = document.getElementById('panel');
 const MIN_ZOOM = 0.02, MAX_ZOOM = 1.5;
 const MAX_PICK = 150; // the export still says 138; 150 is this season's limit
+// 합산 효과 맨 위 "핵심 효과" 칸에 고정해서 보여줄 효과
+const PINNED_STATS = [
+  { re: /^(\d+(?:\.\d+)?)% increased Rarity of Items found in your Maps$/, label: '지도에서 발견하는 아이템 희귀도' },
+  { re: /^(\d+(?:\.\d+)?)% increased Threads found in your Maps$/, label: '지도에서 발견하는 기억의 실낱' },
+  { re: /^(\d+(?:\.\d+)?)% increased Maps found in your Maps$/, label: '플레이어의 지도에서 지도 발견' },
+  { re: /^(\d+(?:\.\d+)?)% increased number of Magic Monsters in your Maps$/, label: '지도 내 마법 몬스터 수' },
+];
 let TOP = 36;
 
 const sheets = T.sheets.map(src => { const im = new Image(); im.onload = draw; im.src = src; return im; });
@@ -520,6 +527,27 @@ function updatePanel() {
       li.append(k);
     }
     eff.append(li);
+  }
+
+  // 핵심 효과 칸: 자주 보는 4가지 합산값을 맨 위에 고정해서 보여준다.
+  const pinnedBox = document.getElementById('pinned');
+  pinnedBox.innerHTML = '<div class="pinned-title">핵심 효과</div>';
+  for (const { re, label } of PINNED_STATS) {
+    let total = 0;
+    for (const node of picked.values()) for (const e of effects(node)) { const m = re.exec(e); if (m) total += +m[1]; }
+    const row = document.createElement('div');
+    row.className = 'pinned-row' + (total ? '' : ' zero');
+    const l = document.createElement('span');
+    l.textContent = label;
+    const v = document.createElement('span');
+    v.className = 'pinned-value';
+    const num = document.createElement('b');
+    num.textContent = (Math.round(total * 100) / 100) + '%';
+    const unit = document.createElement('small');
+    unit.textContent = '증가';
+    v.append(num, unit);
+    row.append(l, v);
+    pinnedBox.append(row);
   }
 
   const list = document.getElementById('picked');
