@@ -243,6 +243,19 @@ function themeNameOf(node) {
   if (!homeHub) buildHomeHubs();
   const hub = homeHub.get(node);
   if (hub) return hub.n;
+  // "확률을 올릴 콘텐츠 종류 선택" 노드는 지금 고른 선택지가 가리키는 주제로 묶는다.
+  // (선택지 전체가 아니라 고른 것만 봐야 용병을 골랐는데 다른 주제로 들어가지 않는다)
+  if (node.v && node.s.some(x => /Select a type of content/i.test(x))) {
+    const pick = node.v[choice.get(node.id)];
+    if (!pick) return null;
+    const text = pick[0] + ' ' + pick[1].join(' ');
+    for (const name of themeNames) {
+      if (name === 'Maps') continue;
+      const stem = name.toLowerCase().replace(/^the /, '').replace(/(ies|es|s)$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp('\\b(?:' + [stem, ...(THEME_ALIASES[name] || [])].join('|') + ')', 'i').test(text)) return name;
+    }
+    return null;
+  }
   for (const name of themeNames) {
     const t = themeOf(T.nodes.find(m => m.k === 'mastery' && m.n === name));
     if (t.related.includes(node)) return name;
