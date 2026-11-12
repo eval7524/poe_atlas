@@ -1243,7 +1243,7 @@ const KO_FLAVOR = {
   'until a hideous gaze settled upon you,': '끔찍한 시선이 당신에게 내려앉을 때까지,'
 };
 
-function tr(value) {
+function trExact(value) {
   if(value==null) return value;
   const s=String(value);
   if(Object.prototype.hasOwnProperty.call(KO_UI,s)) return KO_UI[s];
@@ -1265,3 +1265,53 @@ function tr(value) {
   return s;
 }
 
+// ---- 합산된 숫자 대응 -------------------------------------------------------
+// 같은 효과를 여러 노드에서 선택하면 숫자가 합쳐진다(예: +30% 두 개 → +60%).
+// 번역 사전은 숫자까지 똑같은 문장 기준이라, 합산된 문장은 찾지 못하고 영어로 남는다.
+// 숫자를 '#'로 바꾼 문장 틀로 원문 번역을 찾아 숫자만 바꿔 끼운다.
+const NUM_RE = /\d+(?:\.\d+)?/g;
+let tplIndex = null;
+
+function buildTemplateIndex() {
+  tplIndex = new Map();
+  if (typeof T === 'undefined') return;
+  const add = en => {
+    const ko = trExact(en);
+    if (ko === en || containsUntranslatedEnglish(ko)) return;
+    const key = en.replace(NUM_RE, '#');
+    if (!tplIndex.has(key)) tplIndex.set(key, { en, ko });
+  };
+  for (const n of T.nodes) {
+    n.s.forEach(add);
+    (n.v || []).forEach(v => v[1].forEach(add));
+  }
+}
+
+function trSummed(s) {
+  if (!tplIndex) buildTemplateIndex();
+  const hit = tplIndex.get(s.replace(NUM_RE, '#'));
+  if (!hit) return null;
+  const enNums = hit.en.match(NUM_RE) || [];
+  const newNums = s.match(NUM_RE) || [];
+  if (!enNums.length || enNums.length !== newNums.length) return null;
+  const koNums = [...hit.ko.matchAll(NUM_RE)];
+  const used = new Set(), edits = [];
+  for (let i = 0; i < enNums.length; i++) {
+    const k = koNums.findIndex((m, idx) => !used.has(idx) && +m[0] === +enNums[i]);
+    if (k < 0) { if (+enNums[i] !== +newNums[i]) return null; continue; }
+    used.add(k);
+    edits.push([koNums[k].index, koNums[k][0].length, newNums[i]]);
+  }
+  let out = hit.ko;
+  for (const [at, len, val] of edits.sort((a, b) => b[0] - a[0])) out = out.slice(0, at) + val + out.slice(at + len);
+  return containsUntranslatedEnglish(out) ? null : out;
+}
+
+function tr(value) {
+  const out = trExact(value);
+  if (typeof value === 'string' && /\d/.test(value) && containsUntranslatedEnglish(out)) {
+    const alt = trSummed(value);
+    if (alt) return alt;
+  }
+  return out;
+}
