@@ -518,6 +518,7 @@ function updatePanel() {
   const eff = document.getElementById('effects');
   eff.innerHTML = '';
   for (const e of summarize(picked.values())) {
+    if (PINNED_STATS.some(p => p.re.test(e.text))) continue; // 위 "지도 보너스" 칸에 이미 합쳐서 보여주는 효과
     const li = document.createElement('li');
     li.textContent = tr(e.text);
     if (e.count > 1) {
