@@ -15,14 +15,3 @@
 주의
 - PoEDB의 한국어 표기와 일치하도록 정리했지만, 모든 문장이 PoEDB 원문을 1:1로 복사한 것은 아닙니다.
 - PoEDB에서 직접 대응시키기 어려운 문구는 게임 의미를 유지하도록 별도 번역했습니다. 특히 일부 고유명사와 신규 콘텐츠 용어는 실제 게임 내 표기와 추가 대조가 필요할 수 있습니다.
-- 이 버전은 원본 트리 데이터와 조작 기능을 유지하는 번역 패치입니다. 원본 이미지 리소스는 ZIP에 포함되지 않습니다.
-
-GitHub Pages로 공개하기
-1. GitHub에서 새 저장소를 만들고 이름을 poe-atlas-korean, 공개(Public)로 설정합니다.
-2. 이 ZIP을 압축 해제한 뒤, AtlasTree_Korean 폴더 안의 파일 6개(index.html, style.css, viewer.js, data.js, ko.js, README_ko.txt)를 저장소 최상위에 업로드합니다.
-3. 저장소의 Settings > Pages로 이동합니다.
-4. Build and deployment에서 Deploy from a branch를 선택합니다.
-5. Branch는 main, 폴더는 /(root)로 지정하고 Save를 누릅니다.
-6. 배포가 완료되면 https://계정명.github.io/poe-atlas-korean/ 주소로 접속할 수 있습니다.
-
-참고: 아틀라스 배경과 노드 스프라이트 이미지는 원본 사이트(hypostasis.faith)에서 불러옵니다. 따라서 해당 사이트의 이미지 리소스가 공개되어 있어야 정상 표시됩니다.
