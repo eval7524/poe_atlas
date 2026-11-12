@@ -14,7 +14,7 @@
   gtag('js', new Date());
   gtag('config', 'G-J72460RSQQ');
 </script>
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <header class="app-header">
@@ -74,23 +74,24 @@
 </main>
 <div id="tip" style="display:none"></div>
 <div id="menu"></div>
-<script src="data.js?v=7"></script>
-<script src="ko.js?v=7"></script>
+<script src="data.js?v=8"></script>
+<script src="ko.js?v=8"></script>
 <script>
 // 이미지는 GGG 공식 저장소(grindinggear/atlastree-export)에서 불러옵니다.
 T.sheets = T.sheets.map(src => 'https://cdn.jsdelivr.net/gh/grindinggear/atlastree-export@master/' + src);
 </script>
-<script src="viewer.js?v=7"></script>
+<script src="viewer.js?v=8"></script>
 <script>
 // 선택 포인트 진행 표시만 추가하며, 트리 선택 로직은 기존 viewer.js를 그대로 사용합니다.
-const countObserver = new MutationObserver(() => {
-  const count = document.getElementById('count');
-  const progress = document.getElementById('point-progress');
-  const match = count.textContent.match(/(\d+)\s*\/\s*(\d+)/);
-  if (match) progress.style.width = Math.min(100, Number(match[1]) / Number(match[2]) * 100) + '%';
-});
-countObserver.observe(document.getElementById('count'), { childList: true, characterData: true, subtree: true });
-countObserver.takeRecords();
+const pointCount = document.getElementById('count');
+const pointProgress = document.getElementById('point-progress');
+function updatePointProgress() {
+  const match = pointCount.textContent.match(/(\d+)\s*\/\s*(\d+)/);
+  if (match) pointProgress.style.width = Math.min(100, Number(match[1]) / Number(match[2]) * 100) + '%';
+}
+new MutationObserver(updatePointProgress).observe(pointCount, { childList: true, characterData: true, subtree: true });
+// 새로고침 시 주소(#s=...)에서 복원된 선택은 감시 시작 전에 이미 표시되므로, 처음 한 번 직접 반영합니다.
+updatePointProgress();
 </script>
 </body>
 </html>
