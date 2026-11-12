@@ -237,6 +237,19 @@ function themeOf(n) {
   return set;
 }
 
+// 노드가 속한 주제 이름.
+const themeNames = [...new Set(T.nodes.filter(n => n.k === 'mastery').map(n => n.n))];
+function themeNameOf(node) {
+  if (!homeHub) buildHomeHubs();
+  const hub = homeHub.get(node);
+  if (hub) return hub.n;
+  for (const name of themeNames) {
+    const t = themeOf(T.nodes.find(m => m.k === 'mastery' && m.n === name));
+    if (t.related.includes(node)) return name;
+  }
+  return null;
+}
+
 // 노드 강조 표시. 크기는 노드 크기에 비례시키고, 화면에서 아주 작게 보이는 노드는
 // 서로 겹치지 않도록 작은 점으로 그린다. (주제 강조와 검색 결과 강조가 함께 쓴다)
 function markNode(n, color, rgb) {
@@ -519,23 +532,79 @@ function updatePanel() {
 
   const eff = document.getElementById('effects');
   eff.innerHTML = '';
-  for (const e of summarize(picked.values())) {
-    if (PINNED_STATS.some(p => p.re.test(e.text))) continue; // 위 "지도 보너스" 칸에 이미 합쳐서 보여주는 효과
-    const li = document.createElement('li');
-    li.textContent = tr(e.text);
-    if (e.count > 1) {
-      const k = document.createElement('span');
-      k.className = 'n';
-      k.textContent = '×' + e.count;
-      li.append(k);
+  const byTheme = new Map([['Maps', []]]);
+  for (const node of picked.values()) {
+    const key = themeNameOf(node) || 'Maps';
+    (byTheme.get(key) || byTheme.set(key, []).get(key)).push(node);
+  }
+  const keys = [...byTheme.keys()].sort((x, y) => {
+    const rank = k => k === 'Maps' ? 0 : 1;
+    return rank(x) - rank(y) || byTheme.get(y).length - byTheme.get(x).length;
+  });
+  const TAIL = /^(.*?)\s*([+\-−]?\d+(?:\.\d+)?%)(?:\s*(증가|감소))?$/;
+  const mkValue = (num, unit) => {
+    const v = document.createElement('span');
+    v.className = 'pinned-value';
+    const b = document.createElement('b');
+    b.textContent = num;
+    v.append(b);
+    if (unit) { const sm = document.createElement('small'); sm.textContent = unit; v.append(sm); }
+    return v;
+  };
+  for (const key of keys) {
+    const rows = summarize(byTheme.get(key)).filter(e => !PINNED_STATS.some(p => p.re.test(e.text)));
+    const items = [];
+    if (key === 'Maps') {
+      for (const { re, label } of PINNED_STATS.slice(3)) {
+        let total = 0;
+        for (const node of picked.values()) for (const e of effects(node)) { const m = re.exec(e); if (m) total += +m[1]; }
+        if (total) items.push({ label, value: mkValue((Math.round(total * 100) / 100) + '%', '증가') });
+      }
     }
-    eff.append(li);
+    for (const e of rows) {
+      const t = tr(e.text);
+      const m = t.match(TAIL);
+      const item = { count: e.count };
+      if (m && m[1]) { item.label = m[1]; item.value = mkValue(m[2], m[3]); }
+      else item.text = t;
+      items.push(item);
+    }
+    if (!items.length) continue;
+    const box = document.createElement('li');
+    box.className = 'group-box';
+    const title = document.createElement('div');
+    title.className = 'box-title';
+    title.textContent = key === 'Maps' ? '지도' : tr(key);
+    box.append(title);
+    for (const it of items) {
+      const row = document.createElement('div');
+      row.className = 'box-row';
+      const text = document.createElement('span');
+      text.className = 'box-text';
+      if (it.label) text.textContent = it.label;
+      else {
+        it.text.split(/(\d+(?:\.\d+)?%?)/).forEach((part, i) => {
+          if (i % 2) { const b = document.createElement('b'); b.className = 'num'; b.textContent = part; text.append(b); }
+          else text.append(part);
+        });
+      }
+      if (it.count > 1) {
+        const k = document.createElement('small');
+        k.className = 'cnt';
+        k.textContent = ' ×' + it.count;
+        text.append(k);
+      }
+      row.append(text);
+      if (it.value) row.append(it.value);
+      box.append(row);
+    }
+    eff.append(box);
   }
 
   // 지도 보너스 칸: 자주 보는 합산값을 맨 위에 고정해서 보여준다.
   const pinnedBox = document.getElementById('pinned');
   pinnedBox.innerHTML = '<div class="pinned-title">지도 보너스</div>';
-  for (const { re, label } of PINNED_STATS) {
+  for (const { re, label } of PINNED_STATS.slice(0, 3)) {
     let total = 0;
     for (const node of picked.values()) for (const e of effects(node)) { const m = re.exec(e); if (m) total += +m[1]; }
     const row = document.createElement('div');
