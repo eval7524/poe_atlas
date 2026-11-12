@@ -266,12 +266,24 @@ function render() {
   for (const n of matches) ring(n, n === matches[cursor] ? '#ffffff' : '#4fc3ff', 2.5, 6);
   const theme = themeOf(hover);
   if (theme) {
+    // 강조 크기는 노드 크기에 비례시킨다. 화면에서 아주 작게 보일 때는 겹쳐 보이지 않도록 작은 점으로 그린다.
     const glow = n => {
-      ctx.fillStyle = 'rgba(255,138,216,.28)';
+      const r = radius(n), px = r * zoom;
+      ctx.fillStyle = 'rgba(255,138,216,.9)';
+      ctx.strokeStyle = '#ff8ad8';
       ctx.beginPath();
-      ctx.arc(n.x, n.y, Math.max(radius(n) * 1.5, 12 / zoom), 0, Math.PI * 2);
+      if (px < 6) {
+        ctx.arc(n.x, n.y, Math.max(px * 1.1, 3) / zoom, 0, Math.PI * 2);
+        ctx.fill();
+        return;
+      }
+      ctx.fillStyle = 'rgba(255,138,216,.22)';
+      ctx.arc(n.x, n.y, r * 1.2, 0, Math.PI * 2);
       ctx.fill();
-      ring(n, '#ff8ad8', 3, 6);
+      ctx.lineWidth = Math.max(2, px * 0.08) / zoom;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r * 1.2, 0, Math.PI * 2);
+      ctx.stroke();
     };
     theme.related.forEach(glow);
     theme.hubs.forEach(n => { if (n !== hover) glow(n); });
