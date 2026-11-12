@@ -17,6 +17,95 @@ for (const [a, b] of T.edges) {
   adj.get(a).push(b);
   adj.get(b).push(a);
 }
+
+// ---- 짧은 공유 주소 (#b=...) ------------------------------------------------
+// 선택한 노드는 항상 시작 노드에서 이어져 있으므로, 시작 노드에서 퍼져 나가며
+// "이웃 노드를 골랐는가"를 한 비트씩만 기록한다. 노드 번호를 나열하는 것보다 훨씬 짧다.
+// 앞 3글자는 노드/연결 데이터의 지문이며, 데이터가 바뀌면 옛 링크를 열지 않는다.
+const NEIGHBORS = new Map();
+for (const [id, list] of adj) NEIGHBORS.set(id, [...new Set(list)].sort((a, b) => a - b));
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+const FINGERPRINT = (() => {
+  let h = 0x811c9dc5;
+  const mix = v => { h = Math.imul(h ^ v, 0x01000193) >>> 0; };
+  for (const id of [...NEIGHBORS.keys()].sort((a, b) => a - b)) { mix(id); NEIGHBORS.get(id).forEach(mix); }
+  for (const n of [...T.nodes].sort((a, b) => a.id - b.id)) { mix(n.id); mix(n.v ? n.v.length : 0); mix(n.k === 'mastery' ? 1 : 0); }
+  return B64[(h >>> 12) & 63] + B64[(h >>> 6) & 63] + B64[h & 63];
+})();
+
+function bytesToB64(bytes) {
+  let out = '';
+  for (let i = 0; i < bytes.length; i += 3) {
+    const n = (bytes[i] << 16) | ((bytes[i + 1] || 0) << 8) | (bytes[i + 2] || 0);
+    const chars = Math.min(4, Math.ceil((bytes.length - i) * 8 / 6));
+    for (let k = 0; k < chars; k++) out += B64[(n >> (18 - 6 * k)) & 63];
+  }
+  return out;
+}
+function b64ToBytes(str) {
+  const bytes = [];
+  let acc = 0, nbits = 0;
+  for (const ch of str) {
+    const v = B64.indexOf(ch);
+    if (v < 0) return null;
+    acc = (acc << 6) | v; nbits += 6;
+    if (nbits >= 8) { nbits -= 8; bytes.push((acc >> nbits) & 255); acc &= (1 << nbits) - 1; }
+  }
+  return bytes;
+}
+
+function encodeBuild() {
+  const bits = [], chosen = [];
+  const seen = new Set([START]), queue = [START];
+  for (let q = 0; q < queue.length; q++)
+    for (const nb of NEIGHBORS.get(queue[q]) || []) {
+      if (seen.has(nb)) continue;
+      seen.add(nb);
+      const on = picked.has(nb);
+      bits.push(on ? 1 : 0);
+      if (on) {
+        queue.push(nb);
+        if (byId.get(nb).v) chosen.push(choice.has(nb) ? choice.get(nb) + 1 : 0);
+      }
+    }
+  for (const c of chosen) for (let k = 3; k >= 0; k--) bits.push((c >> k) & 1);
+  const bytes = [];
+  for (let i = 0; i < bits.length; i += 8) {
+    let b = 0;
+    for (let k = 0; k < 8; k++) b = (b << 1) | (bits[i + k] || 0);
+    bytes.push(b);
+  }
+  while (bytes.length && bytes[bytes.length - 1] === 0) bytes.pop();
+  return FINGERPRINT + bytesToB64(bytes);
+}
+
+// returns [[id, choiceIndex|undefined], ...] or null when the link doesn't fit this data
+function decodeBuild(str) {
+  if (str.slice(0, 3) !== FINGERPRINT) return null;
+  const bytes = b64ToBytes(str.slice(3));
+  if (!bytes) return null;
+  let pos = 0;
+  const bit = () => { const b = (pos >> 3) < bytes.length ? (bytes[pos >> 3] >> (7 - (pos & 7))) & 1 : 0; pos++; return b; };
+  const seen = new Set([START]), queue = [START], out = [], withChoice = [];
+  for (let q = 0; q < queue.length; q++)
+    for (const nb of NEIGHBORS.get(queue[q]) || []) {
+      if (seen.has(nb)) continue;
+      seen.add(nb);
+      if (!bit()) continue;
+      const n = byId.get(nb);
+      if (!n || n.k === 'mastery') return null;
+      queue.push(nb);
+      out.push([nb, undefined]);
+      if (n.v) withChoice.push(out.length - 1);
+    }
+  for (const i of withChoice) {
+    let c = 0;
+    for (let k = 0; k < 4; k++) c = (c << 1) | bit();
+    out[i][1] = c ? c - 1 : undefined;
+  }
+  return out;
+}
+
 for (const n of T.nodes)
   n.text = [n.n, tr(n.n), ...n.s, ...n.s.map(tr), ...n.r, ...n.r.map(tr), ...(n.v || []).flatMap(v => [v[0], tr(v[0])])].join(' ').replace(/\s+/g, ' ').toLowerCase();
 
@@ -300,8 +389,7 @@ function flashFull(need) {
 }
 
 function selectionChanged() {
-  const ids = [...picked.keys()].map(id => choice.has(id) ? id + ':' + choice.get(id) : id).join(',');
-  history.replaceState(null, '', ids ? '#s=' + ids : location.pathname + location.search);
+  history.replaceState(null, '', picked.size ? '#b=' + encodeBuild() : location.pathname + location.search);
   updatePanel();
   draw();
 }
@@ -391,9 +479,18 @@ document.getElementById('toggle').onclick = () => {
 
 // saving the taken path in the url, node IDs separated by commas,
 // "id:choice" for multiple-choice nodes
-const saved = /#s=([\d,:]+)/.exec(location.hash);
-if (saved) for (const item of saved[1].split(',')) {
-  const [id, c] = item.split(':').map(Number);
+let initial = [], badLink = false;
+{
+  const short = /#b=([A-Za-z0-9_-]+)/.exec(location.hash);
+  const legacy = /#s=([\d,:]+)/.exec(location.hash);
+  if (short) {
+    const decoded = decodeBuild(short[1]);
+    if (decoded) initial = decoded; else badLink = true;
+  } else if (legacy) {
+    initial = legacy[1].split(',').map(item => item.split(':').map(Number)); // 예전 긴 주소도 계속 열림
+  }
+}
+for (const [id, c] of initial) {
   const n = byId.get(id);
   if (!n || !selectable(n) || picked.size >= MAX_PICK) continue;
   picked.set(n.id, n);
@@ -406,6 +503,32 @@ if (saved) for (const item of saved[1].split(',')) {
 if (innerWidth < 900 && !picked.size) panel.classList.add('hidden');
 document.getElementById('toggle').classList.toggle('on', !panel.classList.contains('hidden'));
 updatePanel();
+if (badLink) {
+  const c = document.getElementById('count');
+  c.textContent = '이 링크는 현재 데이터와 맞지 않아 열 수 없습니다';
+  c.classList.add('full');
+  clearTimeout(fullTimer);
+  fullTimer = setTimeout(updatePanel, 4000);
+}
+
+// 링크 복사
+const shareButton = document.getElementById('share');
+const shareLabel = document.getElementById('share-label');
+let shareTimer = 0;
+shareButton.onclick = async () => {
+  const url = location.href;
+  let ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {
+    const t = document.createElement('textarea');
+    t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.append(t); t.select();
+    try { ok = document.execCommand('copy'); } catch (e2) {}
+    t.remove();
+  }
+  shareLabel.textContent = ok ? '복사됨 ✓' : '복사 실패';
+  clearTimeout(shareTimer);
+  shareTimer = setTimeout(() => { shareLabel.textContent = '링크 복사'; }, 1500);
+};
 
 const q = document.getElementById('q');
 const hits = document.getElementById('hits');
