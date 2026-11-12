@@ -143,3 +143,13 @@ canvas.drag { cursor: grabbing; }
   .panel-section { margin-top: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+#pinned { margin: 10px 0 12px; padding: 11px 12px; border: 1px solid rgba(167,139,250,.38); border-radius: 10px; background: linear-gradient(135deg, rgba(139,108,240,.14), rgba(31,34,51,.55) 70%); }
+.pinned-title { margin-bottom: 7px; color: #b9a8f5; font-size: 10px; font-weight: 750; letter-spacing: .08em; }
+.pinned-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 5px 0; border-top: 1px solid rgba(177,183,218,.08); color: #d6cbff; font-size: 12px; }
+.pinned-row:first-of-type { border-top: 0; }
+.pinned-value { flex: 0 0 auto; white-space: nowrap; }
+.pinned-value b { color: #e8c060; font-size: 14px; font-variant-numeric: tabular-nums; }
+.pinned-value small { margin-left: 4px; color: #b6a5f5; font-size: 11px; }
+.pinned-row.zero { color: #7d839b; }
+.pinned-row.zero .pinned-value b, .pinned-row.zero .pinned-value small { color: #6a7088; }
+

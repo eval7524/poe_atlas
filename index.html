@@ -14,7 +14,7 @@
   gtag('js', new Date());
   gtag('config', 'G-J72460RSQQ');
 </script>
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 <header class="app-header">
@@ -65,6 +65,7 @@
     <p id="empty">트리에서 노드를 선택하면 할당 경로와 효과가 여기에 표시됩니다. 여러 선택지가 있는 노드는 원하는 항목을 선택하세요. <span class="empty-hint">노드를 클릭해 시작하세요.</span></p>
     <section class="panel-section">
       <div class="section-heading"><h3>합산 효과</h3><span class="section-mark">EFFECTS</span></div>
+      <div id="pinned"></div>
       <ul id="effects"></ul>
     </section>
     <section class="panel-section node-section">
@@ -77,13 +78,13 @@
 </main>
 <div id="tip" style="display:none"></div>
 <div id="menu"></div>
-<script src="data.js?v=15"></script>
-<script src="ko.js?v=15"></script>
+<script src="data.js?v=16"></script>
+<script src="ko.js?v=16"></script>
 <script>
 // 이미지는 GGG 공식 저장소(grindinggear/atlastree-export)에서 불러옵니다.
 T.sheets = T.sheets.map(src => 'https://cdn.jsdelivr.net/gh/grindinggear/atlastree-export@master/' + src);
 </script>
-<script src="viewer.js?v=15"></script>
+<script src="viewer.js?v=16"></script>
 <script>
 // 선택 포인트 진행 표시만 추가하며, 트리 선택 로직은 기존 viewer.js를 그대로 사용합니다.
 const pointCount = document.getElementById('count');
