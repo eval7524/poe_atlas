@@ -383,7 +383,6 @@ function updatePanel() {
   }
 }
 
-document.getElementById('max').textContent = MAX_PICK;
 document.getElementById('clear').onclick = () => { picked.clear(); choice.clear(); selectionChanged(); };
 document.getElementById('toggle').onclick = () => {
   panel.classList.toggle('hidden');
