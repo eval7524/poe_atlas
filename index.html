@@ -14,7 +14,7 @@
   gtag('js', new Date());
   gtag('config', 'G-J72460RSQQ');
 </script>
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
 </head>
 <body>
 <header class="app-header">
@@ -84,6 +84,7 @@
     <input id="saves-name" type="text" maxlength="30" placeholder="빌드 이름 (비워두면 자동)" autocomplete="off">
     <button type="submit" id="saves-save" class="tool-button on">현재 선택 저장</button>
   </form>
+  <div id="saves-active" class="saves-active" hidden><span id="saves-active-label"></span><button id="saves-overwrite" type="button" class="tool-button on"></button></div>
   <div id="saves-msg" class="saves-msg" aria-live="polite"></div>
   <ul id="saves-list"></ul>
   <p id="saves-empty">아직 저장한 빌드가 없습니다.</p>
@@ -100,14 +101,14 @@
 </div>
 <div id="tip" style="display:none"></div>
 <div id="menu"></div>
-<script src="data.js?v=26"></script>
-<script src="ko.js?v=26"></script>
-<script src="i18n.js?v=26"></script>
+<script src="data.js?v=27"></script>
+<script src="ko.js?v=27"></script>
+<script src="i18n.js?v=27"></script>
 <script>
 // 이미지는 GGG 공식 저장소(grindinggear/atlastree-export)에서 불러옵니다.
 T.sheets = T.sheets.map(src => 'https://cdn.jsdelivr.net/gh/grindinggear/atlastree-export@master/' + src);
 </script>
-<script src="viewer.js?v=26"></script>
+<script src="viewer.js?v=27"></script>
 <script>
 // 선택 포인트 진행 표시만 추가하며, 트리 선택 로직은 기존 viewer.js를 그대로 사용합니다.
 const pointCount = document.getElementById('count');
