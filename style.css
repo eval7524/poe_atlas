@@ -96,23 +96,23 @@ canvas.drag { cursor: grabbing; }
 #picked li select { flex-basis: 100%; max-width: 100%; margin: 3px 0 2px 7px; padding: 6px 8px; border: 1px solid rgba(167,139,250,.24); border-radius: 7px; outline: 0; background: #151725; color: #c4b5fd; font-size: 10px; }
 .panel-footer { display: flex; align-items: center; gap: 7px; margin-top: auto; padding-top: 18px; color: #70768c; font-size: 9px; line-height: 1.5; }
 .footer-dot { width: 5px; height: 5px; flex: 0 0 auto; background: #9c86ef; box-shadow: none; }
-#tip { position: fixed; z-index: 7; display: none; max-width: 360px; padding: 11px 13px; border: 1px solid rgba(167,139,250,.42); border-radius: 10px; background: rgba(16,17,27,.97); box-shadow: 0 12px 32px rgba(0,0,0,.4); pointer-events: none; font-size: 11px; line-height: 1.6; backdrop-filter: blur(12px); }
-#tip b { display: block; margin-bottom: 5px; color: #e6dcff; font-size: 12px; }
+#tip { position: fixed; z-index: 7; display: none; max-width: 400px; padding: 11px 13px; border: 1px solid rgba(167,139,250,.42); border-radius: 10px; background: rgba(16,17,27,.97); box-shadow: 0 12px 32px rgba(0,0,0,.4); pointer-events: none; font-size: 13px; line-height: 1.6; backdrop-filter: blur(12px); }
+#tip b { display: block; margin-bottom: 5px; color: #e6dcff; font-size: 14px; }
 #tip .stat { color: #b8a8f4; white-space: pre-line; }
 #tip .rem { color: #9297aa; font-style: italic; }
 #tip .fl { margin-top: 5px; color: #d3a45f; font-style: italic; }
-#tip .hint { margin-top: 7px; color: #8c92a8; font-size: 10px; }
+#tip .hint { margin-top: 7px; color: #8c92a8; font-size: 11px; }
 #tip .choices { margin-top: 5px; padding-left: 8px; border-left: 2px solid #49415f; }
 #tip .choices div { color: #a99bd7; white-space: pre-line; }
 #tip .choices div.on { color: #e8c060; }
-#menu { position: fixed; z-index: 8; display: none; width: 330px; max-width: calc(100vw - 16px); padding: 11px; border: 1px solid rgba(167,139,250,.5); border-radius: 11px; background: rgba(16,17,27,.98); box-shadow: 0 15px 38px rgba(0,0,0,.48); font-size: 11px; backdrop-filter: blur(14px); }
-#menu b { display: block; margin-bottom: 6px; color: #e6dcff; font-size: 12px; }
+#menu { position: fixed; z-index: 8; display: none; width: 360px; max-width: calc(100vw - 16px); padding: 11px; border: 1px solid rgba(167,139,250,.5); border-radius: 11px; background: rgba(16,17,27,.98); box-shadow: 0 15px 38px rgba(0,0,0,.48); font-size: 13px; backdrop-filter: blur(14px); }
+#menu b { display: block; margin-bottom: 6px; color: #e6dcff; font-size: 14px; }
 #menu .stat { margin-bottom: 4px; color: #b8a8f4; white-space: pre-line; }
 #menu button { display: block; width: 100%; margin-top: 5px; padding: 8px 9px; border: 1px solid rgba(177,183,218,.13); border-radius: 7px; background: #1b1e2c; color: #c2c4d2; cursor: pointer; text-align: left; }
 #menu button:hover { border-color: rgba(167,139,250,.45); background: #25283a; color: #e6dcff; }
 #menu button.on { border-color: #a78bfa; color: #d6caff; background: rgba(139,108,240,.15); }
 #menu button.rm { margin-top: 9px; color: #f08e8e; }
-#menu .hint { margin-top: 7px; color: #858ba2; font-size: 10px; }
+#menu .hint { margin-top: 7px; color: #858ba2; font-size: 11px; }
 @media (max-width: 900px) {
   .app-header { padding: 0 14px; }
   .toolbar-row { flex-wrap: wrap; gap: 8px; }
