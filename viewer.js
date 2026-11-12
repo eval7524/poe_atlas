@@ -7,12 +7,12 @@ const MIN_ZOOM = 0.02, MAX_ZOOM = 1.5;
 const MAX_PICK = 150; // the export still says 138; 150 is this season's limit
 // 합산 효과 맨 위 "지도 보너스" 칸에 고정해서 보여줄 효과
 const PINNED_STATS = [
-  { re: /^(\d+(?:\.\d+)?)% increased Rarity of Items found in your Maps$/, label: '지도에서 발견하는 아이템 희귀도' },
-  { re: /^(\d+(?:\.\d+)?)% increased Threads found in your Maps$/, label: '지도에서 발견하는 기억의 실낱' },
-  { re: /^(\d+(?:\.\d+)?)% increased Maps found in your Maps$/, label: '플레이어의 지도에서 지도 발견' },
-  { re: /^(\d+(?:\.\d+)?)% increased number of Magic Monsters in your Maps$/, label: '지도 내 마법 몬스터 수' },
-  { re: /^(\d+(?:\.\d+)?)% increased number of Rare Monsters in your Maps$/, label: '지도 내 희귀 몬스터 수' },
-  { re: /^(\d+(?:\.\d+)?)% increased Pack Size in your Maps$/, label: '지도 내 무리 규모' },
+  { re: /^(\d+(?:\.\d+)?)% increased Rarity of Items found in your Maps$/, label: t('지도에서 발견하는 아이템 희귀도') },
+  { re: /^(\d+(?:\.\d+)?)% increased Threads found in your Maps$/, label: t('지도에서 발견하는 기억의 실낱') },
+  { re: /^(\d+(?:\.\d+)?)% increased Maps found in your Maps$/, label: t('플레이어의 지도에서 지도 발견') },
+  { re: /^(\d+(?:\.\d+)?)% increased number of Magic Monsters in your Maps$/, label: t('지도 내 마법 몬스터 수') },
+  { re: /^(\d+(?:\.\d+)?)% increased number of Rare Monsters in your Maps$/, label: t('지도 내 희귀 몬스터 수') },
+  { re: /^(\d+(?:\.\d+)?)% increased Pack Size in your Maps$/, label: t('지도 내 무리 규모') },
 ];
 let TOP = 36;
 
@@ -235,6 +235,17 @@ function themeOf(n) {
   const set = { hubs, related: [...related] };
   themeCache.set(n.n, set);
   return set;
+}
+
+// "Surpassing Chance"가 붙은 확률은 100%마다 1회씩 확정이고, 나머지 확률로 1회 더 나온다.
+// 합산이 100%를 넘으면 그 풀이를 보여준다. (문구에 Surpassing Chance가 있는 효과만)
+function surpassNote(text) {
+  if (!/Surpassing Chance/i.test(text)) return '';
+  const m = /([+-]?\d+(?:\.\d+)?)%/.exec(text);
+  const total = m ? +m[1] : 0;
+  if (total < 100) return '';
+  const n = Math.floor(total / 100), r = Math.round((total - n * 100) * 100) / 100;
+  return r ? t('확정 {n}회 + {r}% 확률로 1회 더', { n, r }) : t('확정 {n}회', { n });
 }
 
 // 노드가 속한 주제 이름.
@@ -472,14 +483,14 @@ function openMenu(n, sx, sy) {
     const k = cut(n).length;
     const b = document.createElement('button');
     b.className = 'rm';
-    b.textContent = k === 1 ? '제거' : `노드 ${k}개 제거 (이 노드와 연결된 노드 포함)`;
+    b.textContent = k === 1 ? t('제거') : t('노드 {k}개 제거 (이 노드와 연결된 노드 포함)', { k });
     b.onclick = () => { closeMenu(); toggle(n); };
     menu.append(b);
   } else {
     const k = pathTo(n).length;
     const d = document.createElement('div');
     d.className = 'hint';
-    d.textContent = `할당할 항목을 선택하세요 (${k}포인트)`;
+    d.textContent = t('할당할 항목을 선택하세요 ({k}포인트)', { k });
     menu.append(d);
   }
   menu.style.display = 'block';
@@ -494,7 +505,7 @@ addEventListener('pointerdown', e => { if (menuOpen() && !menu.contains(e.target
 let fullTimer = 0;
 function flashFull(need) {
   const c = document.getElementById('count');
-  c.textContent = `경로에 ${need}포인트가 필요합니다. 남은 포인트: ${MAX_PICK - picked.size}`;
+  c.textContent = t('경로에 {need}포인트가 필요합니다. 남은 포인트: {left}', { need, left: MAX_PICK - picked.size });
   c.classList.add('full');
   clearTimeout(fullTimer);
   fullTimer = setTimeout(updatePanel, 1500);
@@ -538,7 +549,7 @@ function summarize(nodes) {
 function updatePanel() {
   const n = picked.size;
   const c = document.getElementById('count');
-  c.textContent = `${n} / ${MAX_PICK}개 선택됨`;
+  c.textContent = t('{n} / {max}개 선택됨', { n, max: MAX_PICK });
   c.classList.toggle('full', n >= MAX_PICK);
   document.getElementById('badge').textContent = n;
   document.getElementById('empty').style.display = n ? 'none' : '';
@@ -571,13 +582,14 @@ function updatePanel() {
       for (const { re, label } of PINNED_STATS.slice(3)) {
         let total = 0;
         for (const node of picked.values()) for (const e of effects(node)) { const m = re.exec(e); if (m) total += +m[1]; }
-        if (total) items.push({ label, value: mkValue((Math.round(total * 100) / 100) + '%', '증가') });
+        if (total) items.push({ label, value: mkValue((Math.round(total * 100) / 100) + '%', t('증가')) });
       }
     }
     for (const e of rows) {
       const t = tr(e.text);
       const m = t.match(TAIL);
       const item = { count: e.count };
+      item.sub = surpassNote(e.text);
       if (m && m[1]) { item.label = m[1]; item.value = mkValue(m[2], m[3]); }
       else item.text = t;
       items.push(item);
@@ -587,7 +599,7 @@ function updatePanel() {
     box.className = 'group-box';
     const title = document.createElement('div');
     title.className = 'box-title';
-    title.textContent = key === 'Maps' ? '지도' : tr(key);
+    title.textContent = key === 'Maps' ? t('지도') : tr(key);
     box.append(title);
     for (const it of items) {
       const row = document.createElement('div');
@@ -607,6 +619,12 @@ function updatePanel() {
         k.textContent = ' ×' + it.count;
         text.append(k);
       }
+      if (it.sub) {
+        const sub = document.createElement('small');
+        sub.className = 'sub';
+        sub.textContent = it.sub;
+        text.append(sub);
+      }
       row.append(text);
       if (it.value) row.append(it.value);
       box.append(row);
@@ -616,7 +634,7 @@ function updatePanel() {
 
   // 지도 보너스 칸: 자주 보는 합산값을 맨 위에 고정해서 보여준다.
   const pinnedBox = document.getElementById('pinned');
-  pinnedBox.innerHTML = '<div class="pinned-title">지도 보너스</div>';
+  pinnedBox.innerHTML = '<div class="pinned-title">' + t('지도 보너스') + '</div>';
   for (const { re, label } of PINNED_STATS.slice(0, 3)) {
     let total = 0;
     for (const node of picked.values()) for (const e of effects(node)) { const m = re.exec(e); if (m) total += +m[1]; }
@@ -629,7 +647,7 @@ function updatePanel() {
     const num = document.createElement('b');
     num.textContent = (Math.round(total * 100) / 100) + '%';
     const unit = document.createElement('small');
-    unit.textContent = '증가';
+    unit.textContent = t('증가');
     v.append(num, unit);
     row.append(l, v);
     pinnedBox.append(row);
@@ -642,17 +660,17 @@ function updatePanel() {
     li.className = node.k;
     const name = document.createElement('span');
     name.textContent = tr(node.n);
-    name.title = '트리에서 보기';
+    name.title = t('트리에서 보기');
     name.onclick = () => centerOn(node);
     const x = document.createElement('button');
     x.textContent = '×';
-    x.title = '제거';
+    x.title = t('제거');
     x.onclick = () => toggle(node);
     li.append(name, x);
     if (node.v) {
       const sel = document.createElement('select');
-      sel.title = '이 노드의 선택 항목';
-      if (!choice.has(node.id)) sel.append(new Option('하나 선택…', '', true, true));
+      sel.title = t('이 노드의 선택 항목');
+      if (!choice.has(node.id)) sel.append(new Option(t('하나 선택…'), '', true, true));
       node.v.forEach(([label], i) => sel.append(new Option(tr(label), i, false, choice.get(node.id) === i)));
       sel.onchange = () => choose(node, +sel.value);
       li.append(sel);
@@ -666,7 +684,7 @@ const confirmOverlay = document.getElementById('confirm-overlay');
 function closeConfirm() { confirmOverlay.hidden = true; }
 document.getElementById('clear').onclick = () => {
   if (!picked.size) return;
-  document.getElementById('confirm-text').textContent = '선택한 패시브 ' + picked.size + '개가 모두 지워집니다. 이 작업은 되돌릴 수 없습니다.';
+  document.getElementById('confirm-text').textContent = t('선택한 패시브 {n}개가 모두 지워집니다. 이 작업은 되돌릴 수 없습니다.', { n: picked.size });
   confirmOverlay.hidden = false;
   document.getElementById('confirm-cancel').focus();
 };
@@ -707,7 +725,7 @@ document.getElementById('toggle').classList.toggle('on', !panel.classList.contai
 updatePanel();
 if (badLink) {
   const c = document.getElementById('count');
-  c.textContent = '이 링크는 현재 데이터와 맞지 않아 열 수 없습니다';
+  c.textContent = t('이 링크는 현재 데이터와 맞지 않아 열 수 없습니다');
   c.classList.add('full');
   clearTimeout(fullTimer);
   fullTimer = setTimeout(updatePanel, 4000);
@@ -727,9 +745,9 @@ shareButton.onclick = async () => {
     try { ok = document.execCommand('copy'); } catch (e2) {}
     t.remove();
   }
-  shareLabel.textContent = ok ? '복사됨 ✓' : '복사 실패';
+  shareLabel.textContent = ok ? t('복사됨 ✓') : t('복사 실패');
   clearTimeout(shareTimer);
-  shareTimer = setTimeout(() => { shareLabel.textContent = '링크 복사'; }, 1500);
+  shareTimer = setTimeout(() => { shareLabel.textContent = t('링크 복사'); }, 1500);
 };
 
 // 저장 목록: 이 브라우저(localStorage)에만 저장한다. 서버로 보내지 않는다.
@@ -780,8 +798,8 @@ function renderSaves() {
     const edit = document.createElement('button');
     edit.className = 'save-edit';
     edit.type = 'button';
-    edit.title = '이름 수정';
-    edit.setAttribute('aria-label', '이름 수정');
+    edit.title = t('이름 수정');
+    edit.setAttribute('aria-label', t('이름 수정'));
     edit.textContent = '✎';
     edit.onclick = () => {
       const input = document.createElement('input');
@@ -808,22 +826,22 @@ function renderSaves() {
     nameRow.append(name, edit);
     const meta = document.createElement('small');
     const d = new Date(item.t);
-    meta.textContent = item.count + ' / ' + MAX_PICK + '개 · ' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    meta.textContent = t('{n} / {max}개 · {date}', { n: item.count, max: MAX_PICK, date: (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') });
     info.append(nameRow, meta);
     const load = document.createElement('button');
     load.className = 'tool-button on';
-    load.textContent = '불러오기';
+    load.textContent = t('불러오기');
     load.onclick = () => {
-      if (picked.size && armed !== load) { arm(load, '현재 선택이 바뀝니다. 한 번 더'); return; }
+      if (picked.size && armed !== load) { arm(load, t('현재 선택이 바뀝니다. 한 번 더')); return; }
       armed = null;
-      if (applyBuild(item.code)) { saveNotice('"' + item.name + '"을(를) 불러왔습니다.'); closeSaves(); }
-      else saveNotice('트리가 업데이트되어 이 빌드는 불러올 수 없습니다.');
+      if (applyBuild(item.code)) { saveNotice(t('"{name}"을(를) 불러왔습니다.', { name: item.name })); closeSaves(); }
+      else saveNotice(t('트리가 업데이트되어 이 빌드는 불러올 수 없습니다.'));
     };
     const del = document.createElement('button');
     del.className = 'tool-button danger';
-    del.textContent = '삭제';
+    del.textContent = t('삭제');
     del.onclick = () => {
-      if (armed !== del) { arm(del, '정말 삭제?'); return; }
+      if (armed !== del) { arm(del, t('정말 삭제?')); return; }
       armed = null;
       writeSaves(readSaves().filter(x => x.id !== item.id));
       renderSaves();
@@ -845,15 +863,15 @@ savesBtn.onclick = () => savesPop.hidden ? openSaves() : closeSaves();
 document.addEventListener('mousedown', e => { if (!savesPop.hidden && !savesPop.contains(e.target) && !savesBtn.contains(e.target)) closeSaves(); });
 document.getElementById('saves-form').onsubmit = e => {
   e.preventDefault();
-  if (!picked.size) { saveNotice('선택한 노드가 없어 저장할 수 없습니다.'); return; }
+  if (!picked.size) { saveNotice(t('선택한 노드가 없어 저장할 수 없습니다.')); return; }
   const list = readSaves();
-  if (list.length >= SAVE_MAX) { saveNotice('저장은 최대 ' + SAVE_MAX + '개까지 가능합니다. 하나를 삭제해 주세요.'); return; }
-  const name = savesName.value.trim() || '빌드 ' + (list.length + 1);
+  if (list.length >= SAVE_MAX) { saveNotice(t('저장은 최대 {max}개까지 가능합니다. 하나를 삭제해 주세요.', { max: SAVE_MAX })); return; }
+  const name = savesName.value.trim() || t('빌드 {n}', { n: list.length + 1 });
   list.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name, code: encodeBuild(), count: picked.size, t: Date.now() });
-  if (!writeSaves(list)) { saveNotice('이 브라우저에서는 저장할 수 없습니다. (저장 공간 차단 또는 시크릿 모드)'); return; }
+  if (!writeSaves(list)) { saveNotice(t('이 브라우저에서는 저장할 수 없습니다. (저장 공간 차단 또는 시크릿 모드)')); return; }
   savesName.value = '';
   renderSaves();
-  saveNotice('저장했습니다.');
+  saveNotice(t('저장했습니다.'));
 };
 renderSaves();
 document.getElementById('save-open').onclick = () => { openSaves(); savesName.focus(); };
@@ -867,7 +885,7 @@ function search() {
   const words = q.value.toLowerCase().split(/\s+/).filter(Boolean);
   matches = words.length ? T.nodes.filter(n => words.every(w => n.text.includes(w))) : [];
   cursor = -1;
-  hits.textContent = words.length ? (matches.length ? matches.length + '개 검색됨' : '검색 결과 없음') : '';
+  hits.textContent = words.length ? (matches.length ? t('{n}개 검색됨', { n: matches.length }) : t('검색 결과 없음')) : '';
   draw();
 }
 q.addEventListener('input', search);
@@ -898,18 +916,18 @@ function showTip(n, sx, sy) {
   if (n.f.length) html += '<div class="fl">' + n.f.map(x => esc(tr(x))).join('<br>') + '</div>';
   if (n.k === 'mastery') {
     const th = themeOf(n);
-    html += '<div class="hint">' + `관련 노드 ${th.related.length}개 + 중앙 노드 ${th.hubs.length}개 강조` + '</div>';
+    html += '<div class="hint">' + t('관련 노드 {a}개 + 중앙 노드 {b}개 강조', { a: th.related.length, b: th.hubs.length }) + '</div>';
   }
   if (n.v && picked.has(n.id)) {
-    html += '<div class="hint">' + (choice.has(n.id) ? '클릭하여 선택 변경 또는 제거' : '클릭하여 항목 선택') + '</div>';
+    html += '<div class="hint">' + t(choice.has(n.id) ? '클릭하여 선택 변경 또는 제거' : '클릭하여 항목 선택') + '</div>';
   } else if (preview) {
     const k = (preview.add || preview.remove).size, left = MAX_PICK - picked.size;
     const pts = k;
     html += '<div class="hint">' + (preview.remove
-      ? (k === 1 ? '클릭하여 제거' : `클릭하여 노드 ${k}개 제거 (연결된 노드 포함)`)
-      : k > left ? `경로에 ${pts}포인트가 필요하지만 ${left}포인트만 남았습니다`
-      : n.v ? `클릭하여 항목 선택 및 ${pts}포인트 할당`
-      : `클릭하여 ${pts}포인트 할당`) + '</div>';
+      ? (k === 1 ? t('클릭하여 제거') : t('클릭하여 노드 {k}개 제거 (연결된 노드 포함)', { k }))
+      : k > left ? t('경로에 {pts}포인트가 필요하지만 {left}포인트만 남았습니다', { pts, left })
+      : n.v ? t('클릭하여 항목 선택 및 {pts}포인트 할당', { pts })
+      : t('클릭하여 {pts}포인트 할당', { pts })) + '</div>';
   }
   tip.innerHTML = html;
   tip.style.display = 'block';
