@@ -1,4 +1,4 @@
-https://eval7524.github.io/poe_atlas/index.html 를 방문하세요.
+https://eval7524.github.io/poe_atlas 를 방문하세요.
 
 번역 개선 내용
 - 영어 단어를 개별 치환하던 기존 방식을 제거했습니다.
