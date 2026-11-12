@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10111a">
+<meta name="description" content="패스 오브 엑자일 아틀라스 패시브 트리 한국어 도구">
+<title>POE Atlas · 아틀라스 패시브 트리</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header">
+  <div class="brand-row">
+    <a href="index.html" class="brand" aria-label="아틀라스 트리 홈">
+      <span class="brand-mark" aria-hidden="true">✦</span>
+      <span class="brand-copy"><strong>POE ATLAS</strong><small>패시브 트리 플래너</small></span>
+    </a>
+    <div class="header-links">
+      <span class="language-pill"><span class="status-dot"></span> 한국어</span>
+      <a href="https://hypostasis.faith/atlas/ruthless.html" target="_blank" rel="noopener">무자비 원본 <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+  <div class="toolbar-row">
+    <div class="search">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input id="q" type="search" placeholder="노드 이름 또는 효과 검색" autocomplete="off" title="노드 이름 또는 설명 검색. Enter: 다음 결과, Esc: 검색어 지우기">
+      <span id="hits" aria-live="polite"></span>
+      <kbd>/</kbd>
+    </div>
+    <div class="zoom" aria-label="트리 화면 도구">
+      <div class="zoom-group">
+        <button id="out" title="축소" aria-label="축소">−</button>
+        <span id="pct">6.2%</span>
+        <button id="in" title="확대" aria-label="확대">＋</button>
+      </div>
+      <button id="fit" class="tool-button" title="트리를 화면에 맞춤"><span aria-hidden="true">⛶</span> 화면 맞춤</button>
+      <button id="bg" class="tool-button on" title="배경 표시/숨기기 (B)"><span aria-hidden="true">◉</span> 배경</button>
+      <button id="toggle" class="tool-button selection-toggle on" title="선택 패널 표시/숨기기"><span aria-hidden="true">▤</span> 선택됨 <span id="badge">0</span></button>
+    </div>
+  </div>
+</header>
+<main class="workspace">
+  <canvas id="c" aria-label="아틀라스 패시브 트리. 드래그하여 이동하고 노드를 클릭해 선택할 수 있습니다."></canvas>
+  <aside id="panel" aria-label="선택한 패시브 정보">
+    <div class="panel-heading">
+      <div><span class="eyebrow">BUILD SUMMARY</span><h2>선택한 패시브</h2></div>
+      <span class="panel-icon" aria-hidden="true">✧</span>
+    </div>
+    <div class="point-card">
+      <div class="point-card-top"><span>할당 포인트</span><span class="point-limit">최대 150</span></div>
+      <div class="point-value"><strong id="count">0 / 150개 선택됨</strong></div>
+      <div class="point-track"><span id="point-progress"></span></div>
+      <button id="clear" class="clear-button">초기화 <span aria-hidden="true">↺</span></button>
+    </div>
+    <p id="empty">트리에서 노드를 선택하면 할당 경로와 효과가 여기에 표시됩니다. 여러 선택지가 있는 노드는 원하는 항목을 선택하세요. <span class="empty-hint">노드를 클릭해 시작하세요.</span></p>
+    <section class="panel-section">
+      <div class="section-heading"><h3>합산 효과</h3><span class="section-mark">EFFECTS</span></div>
+      <ul id="effects"></ul>
+    </section>
+    <section class="panel-section node-section">
+      <div class="section-heading"><h3>선택한 노드</h3><span class="section-mark">NODES</span></div>
+      <ul id="picked"></ul>
+    </section>
+    <div class="panel-footer"><span class="footer-dot"></span> 노드를 선택하면 효과가 자동으로 합산됩니다.</div>
+  </aside>
+</main>
+<div id="tip" style="display:none"></div>
+<div id="menu"></div>
+<script src="data.js"></script>
+<script src="ko.js"></script>
+<script>
+T.sheets = T.sheets.map(src => 'https://hypostasis.faith/atlas/' + src);
+</script>
+<script src="viewer.js"></script>
+<script>
+// 선택 포인트 진행 표시만 추가하며, 트리 선택 로직은 기존 viewer.js를 그대로 사용합니다.
+const countObserver = new MutationObserver(() => {
+  const count = document.getElementById('count');
+  const progress = document.getElementById('point-progress');
+  const match = count.textContent.match(/(\d+)\s*\/\s*(\d+)/);
+  if (match) progress.style.width = Math.min(100, Number(match[1]) / Number(match[2]) * 100) + '%';
+});
+countObserver.observe(document.getElementById('count'), { childList: true, characterData: true, subtree: true });
+countObserver.takeRecords();
+</script>
+</body>
+</html>
