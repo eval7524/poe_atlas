@@ -5,7 +5,7 @@ const header = document.querySelector('header');
 const panel = document.getElementById('panel');
 const MIN_ZOOM = 0.02, MAX_ZOOM = 1.5;
 const MAX_PICK = 150; // the export still says 138; 150 is this season's limit
-// 합산 효과 맨 위 "핵심 효과" 칸에 고정해서 보여줄 효과
+// 합산 효과 맨 위 "지도 보너스" 칸에 고정해서 보여줄 효과
 const PINNED_STATS = [
   { re: /^(\d+(?:\.\d+)?)% increased Rarity of Items found in your Maps$/, label: '지도에서 발견하는 아이템 희귀도' },
   { re: /^(\d+(?:\.\d+)?)% increased Threads found in your Maps$/, label: '지도에서 발견하는 기억의 실낱' },
@@ -529,9 +529,9 @@ function updatePanel() {
     eff.append(li);
   }
 
-  // 핵심 효과 칸: 자주 보는 4가지 합산값을 맨 위에 고정해서 보여준다.
+  // 지도 보너스 칸: 자주 보는 4가지 합산값을 맨 위에 고정해서 보여준다.
   const pinnedBox = document.getElementById('pinned');
-  pinnedBox.innerHTML = '<div class="pinned-title">핵심 효과</div>';
+  pinnedBox.innerHTML = '<div class="pinned-title">지도 보너스</div>';
   for (const { re, label } of PINNED_STATS) {
     let total = 0;
     for (const node of picked.values()) for (const e of effects(node)) { const m = re.exec(e); if (m) total += +m[1]; }
