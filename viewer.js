@@ -184,7 +184,9 @@ function ring(n, color, width, gap) {
 // 들어 있을 때 보충으로 추가한다. 선택지 목록이나 주의 문구, 다른 그룹 노드의 언급은 무시한다.
 const ORBITS = [82, 162, 335, 493, 662, 846];
 const ORBIT_TOLERANCE = 2.5;
-const THEME_MAX = 150; // 문구 보충이 이보다 많이 걸리는 단어(예: Maps)는 보충하지 않는다
+const THEME_MAX = 150;
+// 중앙 노드 이름과 게임 내 표기가 다른 주제의 별칭 (콘텐츠 선택 노드의 선택지 매칭용)
+const THEME_ALIASES = { 'Settlers of Kalguur': ['ore deposit'], 'Beyond': ['demonic evocator'], 'Essence': ['imprisoned monster'] }; // 문구 보충이 이보다 많이 걸리는 단어(예: Maps)는 보충하지 않는다
 let homeHub = null;
 function buildHomeHubs() {
   homeHub = new Map();
@@ -211,6 +213,16 @@ function themeOf(n) {
   const re = new RegExp('\\b' + word, 'i');
   const extra = T.nodes.filter(m => m.k !== 'mastery' && !homeHub.has(m) && re.test([m.n, ...m.s].join(' ')));
   if (extra.length <= THEME_MAX) extra.forEach(m => related.add(m));
+  // "확률을 올릴 콘텐츠 종류 선택" 노드(융합된 세계 등)는 선택지가 곧 주제이므로,
+  // 선택지 중 하나라도 이 주제를 가리키면 함께 강조한다. (Maps처럼 너무 흔한 주제는 제외)
+  if (n.n !== 'Maps') {
+    const stem = word.replace(/(ies|es|s)$/, '');
+    const topicRe = new RegExp('\\b(?:' + [stem, ...(THEME_ALIASES[n.n] || [])].join('|') + ')', 'i');
+    for (const m of T.nodes)
+      if (m.v && !homeHub.has(m) && m.s.some(x => /Select a type of content/i.test(x)) &&
+          topicRe.test(m.v.map(v => v[0] + ' ' + v[1].join(' ')).join(' ')))
+        related.add(m);
+  }
   const set = { hubs, related: [...related] };
   themeCache.set(n.n, set);
   return set;
