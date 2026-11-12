@@ -182,3 +182,4 @@ canvas.drag { cursor: grabbing; }
 .tool-button.on.armed { border-color: rgba(242,199,92,.6); background: rgba(242,199,92,.12); color: #f2c75c; }
 #saves-empty { margin: 6px 0 2px; color: #858ba2; font-size: 11px; }
 .saves-note { margin: -4px 0 10px; color: #a8a3c4; font-size: 11px; line-height: 1.5; }
+.panel-reset { flex: 0 0 auto; width: auto; margin-top: 0; min-height: 32px; padding: 0 12px; gap: 8px; white-space: nowrap; font-size: 11px; }
