@@ -10,3 +10,7 @@ https://eval7524.github.io/poe_atlas/index.html 를 방문하세요.
 주의
 - PoEDB의 한국어 표기와 일치하도록 정리했지만, 모든 문장이 PoEDB 원문을 1:1로 복사한 것은 아닙니다.
 - PoEDB에서 직접 대응시키기 어려운 문구는 게임 의미를 유지하도록 별도 번역했습니다. 특히 일부 고유명사와 신규 콘텐츠 용어는 실제 게임 내 표기와 추가 대조가 필요할 수 있습니다.
+
+이미지 출처 및 면책
+- 아틀라스 배경과 노드 이미지는 GGG 공식 저장소(https://github.com/grindinggear/atlastree-export)에서 불러옵니다. 이 저장소에는 이미지가 포함되어 있지 않습니다.
+- 이 도구는 비공식 팬 도구이며 Grinding Gear Games와 무관합니다. Path of Exile과 관련 이미지의 저작권은 Grinding Gear Games에 있습니다. 상업적 용도로 사용하지 않습니다.
