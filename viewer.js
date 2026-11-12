@@ -179,6 +179,7 @@ function ring(n, color, width, gap) {
 
 // 중앙(콘텐츠) 노드에 마우스를 올리면, 같은 주제를 다루는 노드를 함께 강조한다.
 // 주제 = 중앙 노드의 이름(예: Blight). 노드 이름/효과 문구에 그 단어가 들어 있으면 관련 노드로 본다.
+// 선택지 목록이나 주의 문구에 스치듯 언급된 경우(예: 실타래 종류 중 하나)는 주제가 아니므로 제외한다.
 // 'Maps'처럼 거의 모든 노드에 들어가는 단어는 의미가 없으므로 같은 이름의 중앙 노드만 강조한다.
 const THEME_MAX = 150;
 const themeCache = new Map();
@@ -189,7 +190,7 @@ function themeOf(n) {
   const re = new RegExp('\\b' + word, 'i');
   const hubs = T.nodes.filter(m => m.k === 'mastery' && m.n === n.n);
   const hits = T.nodes.filter(m => m.k !== 'mastery' &&
-    re.test([m.n, ...m.s, ...m.r, ...(m.v || []).flatMap(v => [v[0], ...v[1]])].join(' ')));
+    re.test([m.n, ...m.s].join(' ')));
   const set = { hubs, related: hits.length > THEME_MAX ? [] : hits, generic: hits.length > THEME_MAX };
   themeCache.set(n.n, set);
   return set;
