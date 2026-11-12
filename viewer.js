@@ -177,21 +177,41 @@ function ring(n, color, width, gap) {
   ctx.stroke();
 }
 
-// 중앙(콘텐츠) 노드에 마우스를 올리면, 같은 주제를 다루는 노드를 함께 강조한다.
-// 주제 = 중앙 노드의 이름(예: Blight). 노드 이름/효과 문구에 그 단어가 들어 있으면 관련 노드로 본다.
-// 선택지 목록이나 주의 문구에 스치듯 언급된 경우(예: 실타래 종류 중 하나)는 주제가 아니므로 제외한다.
-// 'Maps'처럼 거의 모든 노드에 들어가는 단어는 의미가 없으므로 같은 이름의 중앙 노드만 강조한다.
-const THEME_MAX = 150;
+// 중앙(콘텐츠) 노드에 마우스를 올리면, 같은 주제의 노드를 함께 강조한다.
+// 각 중앙 노드 주위에는 같은 그룹의 노드가 정해진 간격(궤도)으로 둘러싸고 있다.
+// 그래서 "가장 가까운 중앙 노드와의 거리가 궤도 간격과 맞는 노드"를 그 주제의 노드로 본다.
+// 어느 그룹에도 속하지 않은 노드(예: 일부 핵심 노드)만, 이름/효과 문구에 주제 단어가
+// 들어 있을 때 보충으로 추가한다. 선택지 목록이나 주의 문구, 다른 그룹 노드의 언급은 무시한다.
+const ORBITS = [82, 162, 335, 493, 662, 846];
+const ORBIT_TOLERANCE = 2.5;
+const THEME_MAX = 150; // 문구 보충이 이보다 많이 걸리는 단어(예: Maps)는 보충하지 않는다
+let homeHub = null;
+function buildHomeHubs() {
+  homeHub = new Map();
+  const hubs = T.nodes.filter(n => n.k === 'mastery');
+  for (const n of T.nodes) {
+    if (n.k === 'mastery') continue;
+    let best = null, bestD = Infinity;
+    for (const h of hubs) {
+      const d = Math.hypot(h.x - n.x, h.y - n.y);
+      if (d < bestD) { bestD = d; best = h; }
+    }
+    if (best && ORBITS.some(r => Math.abs(bestD - r) < ORBIT_TOLERANCE)) homeHub.set(n, best);
+  }
+}
 const themeCache = new Map();
 function themeOf(n) {
   if (!n || n.k !== 'mastery') return null;
   if (themeCache.has(n.n)) return themeCache.get(n.n);
+  if (!homeHub) buildHomeHubs();
+  const hubs = T.nodes.filter(m => m.k === 'mastery' && m.n === n.n);
+  const related = new Set();
+  for (const [node, hub] of homeHub) if (hub.n === n.n) related.add(node);
   const word = n.n.toLowerCase().replace(/^the /, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const re = new RegExp('\\b' + word, 'i');
-  const hubs = T.nodes.filter(m => m.k === 'mastery' && m.n === n.n);
-  const hits = T.nodes.filter(m => m.k !== 'mastery' &&
-    re.test([m.n, ...m.s].join(' ')));
-  const set = { hubs, related: hits.length > THEME_MAX ? [] : hits, generic: hits.length > THEME_MAX };
+  const extra = T.nodes.filter(m => m.k !== 'mastery' && !homeHub.has(m) && re.test([m.n, ...m.s].join(' ')));
+  if (extra.length <= THEME_MAX) extra.forEach(m => related.add(m));
+  const set = { hubs, related: [...related] };
   themeCache.set(n.n, set);
   return set;
 }
@@ -601,9 +621,7 @@ function showTip(n, sx, sy) {
   if (n.f.length) html += '<div class="fl">' + n.f.map(x => esc(tr(x))).join('<br>') + '</div>';
   if (n.k === 'mastery') {
     const th = themeOf(n);
-    html += '<div class="hint">' + (th.generic
-      ? `같은 이름의 중앙 노드 ${th.hubs.length}개 강조`
-      : `관련 노드 ${th.related.length}개 + 중앙 노드 ${th.hubs.length}개 강조`) + '</div>';
+    html += '<div class="hint">' + `관련 노드 ${th.related.length}개 + 중앙 노드 ${th.hubs.length}개 강조` + '</div>';
   }
   if (n.v && picked.has(n.id)) {
     html += '<div class="hint">' + (choice.has(n.id) ? '클릭하여 선택 변경 또는 제거' : '클릭하여 항목 선택') + '</div>';
