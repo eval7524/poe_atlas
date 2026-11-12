@@ -177,6 +177,24 @@ function ring(n, color, width, gap) {
   ctx.stroke();
 }
 
+// 중앙(콘텐츠) 노드에 마우스를 올리면, 같은 주제를 다루는 노드를 함께 강조한다.
+// 주제 = 중앙 노드의 이름(예: Blight). 노드 이름/효과 문구에 그 단어가 들어 있으면 관련 노드로 본다.
+// 'Maps'처럼 거의 모든 노드에 들어가는 단어는 의미가 없으므로 같은 이름의 중앙 노드만 강조한다.
+const THEME_MAX = 150;
+const themeCache = new Map();
+function themeOf(n) {
+  if (!n || n.k !== 'mastery') return null;
+  if (themeCache.has(n.n)) return themeCache.get(n.n);
+  const word = n.n.toLowerCase().replace(/^the /, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('\\b' + word, 'i');
+  const hubs = T.nodes.filter(m => m.k === 'mastery' && m.n === n.n);
+  const hits = T.nodes.filter(m => m.k !== 'mastery' &&
+    re.test([m.n, ...m.s, ...m.r, ...(m.v || []).flatMap(v => [v[0], ...v[1]])].join(' ')));
+  const set = { hubs, related: hits.length > THEME_MAX ? [] : hits, generic: hits.length > THEME_MAX };
+  themeCache.set(n.n, set);
+  return set;
+}
+
 function render() {
   pending = false;
   const w = canvas.width / dpr, h = canvas.height / dpr;
@@ -225,6 +243,18 @@ function render() {
   if (preview) for (const id of preview.add || preview.remove)
     ring(byId.get(id), preview.add ? '#8fd080' : '#e07050', 2.5, 2);
   for (const n of matches) ring(n, n === matches[cursor] ? '#ffffff' : '#4fc3ff', 2.5, 6);
+  const theme = themeOf(hover);
+  if (theme) {
+    const glow = n => {
+      ctx.fillStyle = 'rgba(255,138,216,.28)';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, Math.max(radius(n) * 1.5, 12 / zoom), 0, Math.PI * 2);
+      ctx.fill();
+      ring(n, '#ff8ad8', 3, 6);
+    };
+    theme.related.forEach(glow);
+    theme.hubs.forEach(n => { if (n !== hover) glow(n); });
+  }
   if (hover) ring(hover, '#e8d8a8', 2, 4);
 
   document.getElementById('pct').textContent = Math.round(zoom * 1000) / 10 + '%';
@@ -568,6 +598,12 @@ function showTip(n, sx, sy) {
   }
   for (const s of n.r) html += '<div class="rem">' + esc(tr(s)) + '</div>';
   if (n.f.length) html += '<div class="fl">' + n.f.map(x => esc(tr(x))).join('<br>') + '</div>';
+  if (n.k === 'mastery') {
+    const th = themeOf(n);
+    html += '<div class="hint">' + (th.generic
+      ? `같은 이름의 중앙 노드 ${th.hubs.length}개 강조`
+      : `관련 노드 ${th.related.length}개 + 중앙 노드 ${th.hubs.length}개 강조`) + '</div>';
+  }
   if (n.v && picked.has(n.id)) {
     html += '<div class="hint">' + (choice.has(n.id) ? '클릭하여 선택 변경 또는 제거' : '클릭하여 항목 선택') + '</div>';
   } else if (preview) {
