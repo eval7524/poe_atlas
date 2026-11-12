@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#10111a">
 <meta name="description" content="패스 오브 엑자일 아틀라스 패시브 트리 한국어 도구">
 <title>POE Atlas · 아틀라스 패시브 트리</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <header class="app-header">
@@ -66,12 +66,12 @@
 </main>
 <div id="tip" style="display:none"></div>
 <div id="menu"></div>
-<script src="data.js"></script>
-<script src="ko.js"></script>
+<script src="data.js?v=2"></script>
+<script src="ko.js?v=2"></script>
 <script>
 T.sheets = T.sheets.map(src => 'https://hypostasis.faith/atlas/' + src);
 </script>
-<script src="viewer.js"></script>
+<script src="viewer.js?v=2"></script>
 <script>
 // 선택 포인트 진행 표시만 추가하며, 트리 선택 로직은 기존 viewer.js를 그대로 사용합니다.
 const countObserver = new MutationObserver(() => {
