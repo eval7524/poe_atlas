@@ -813,6 +813,7 @@ document.getElementById('saves-form').onsubmit = e => {
   saveNotice('저장했습니다.');
 };
 renderSaves();
+document.getElementById('save-open').onclick = () => { openSaves(); savesName.focus(); };
 
 const q = document.getElementById('q');
 const hits = document.getElementById('hits');
