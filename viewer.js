@@ -720,6 +720,100 @@ shareButton.onclick = async () => {
   shareTimer = setTimeout(() => { shareLabel.textContent = '링크 복사'; }, 1500);
 };
 
+// 저장 목록: 이 브라우저(localStorage)에만 저장한다. 서버로 보내지 않는다.
+const SAVE_KEY = 'atlas-saves', SAVE_MAX = 30;
+const savesBtn = document.getElementById('saves-btn'), savesPop = document.getElementById('saves-pop');
+const savesList = document.getElementById('saves-list'), savesMsg = document.getElementById('saves-msg');
+const savesName = document.getElementById('saves-name');
+function readSaves() {
+  try { const a = JSON.parse(localStorage.getItem(SAVE_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+}
+function writeSaves(list) {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
+}
+function saveNotice(text) {
+  savesMsg.textContent = text;
+  clearTimeout(saveNotice.t);
+  saveNotice.t = setTimeout(() => { savesMsg.textContent = ''; }, 2500);
+}
+function applyBuild(code) {
+  const decoded = decodeBuild(code);
+  if (!decoded) return false;
+  picked.clear(); choice.clear();
+  for (const [id, c] of decoded) {
+    const n = byId.get(id);
+    if (!n || !selectable(n) || picked.size >= MAX_PICK) continue;
+    picked.set(n.id, n);
+    if (n.v && n.v[c]) choice.set(n.id, c);
+  }
+  const reach = linked(null);
+  for (const id of [...picked.keys()]) if (!reach.has(id)) { picked.delete(id); choice.delete(id); }
+  selectionChanged();
+  return true;
+}
+let armed = null; // 두 번 눌러 확인하는 버튼 (불러오기/삭제)
+function renderSaves() {
+  const list = readSaves();
+  document.getElementById('saves-badge').textContent = list.length;
+  document.getElementById('saves-empty').hidden = list.length > 0;
+  savesList.innerHTML = '';
+  for (const item of list) {
+    const li = document.createElement('li');
+    const info = document.createElement('div');
+    info.className = 'save-info';
+    const name = document.createElement('strong');
+    name.textContent = item.name;
+    const meta = document.createElement('small');
+    const d = new Date(item.t);
+    meta.textContent = item.count + ' / ' + MAX_PICK + '개 · ' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    info.append(name, meta);
+    const load = document.createElement('button');
+    load.className = 'tool-button on';
+    load.textContent = '불러오기';
+    load.onclick = () => {
+      if (picked.size && armed !== load) { arm(load, '현재 선택이 바뀝니다. 한 번 더'); return; }
+      armed = null;
+      if (applyBuild(item.code)) { saveNotice('"' + item.name + '"을(를) 불러왔습니다.'); closeSaves(); }
+      else saveNotice('트리가 업데이트되어 이 빌드는 불러올 수 없습니다.');
+    };
+    const del = document.createElement('button');
+    del.className = 'tool-button danger';
+    del.textContent = '삭제';
+    del.onclick = () => {
+      if (armed !== del) { arm(del, '정말 삭제?'); return; }
+      armed = null;
+      writeSaves(readSaves().filter(x => x.id !== item.id));
+      renderSaves();
+    };
+    li.append(info, load, del);
+    savesList.append(li);
+  }
+}
+function arm(button, label) {
+  armed = button;
+  const prev = button.textContent;
+  button.textContent = label;
+  button.classList.add('armed');
+  setTimeout(() => { if (armed === button) armed = null; button.textContent = prev; button.classList.remove('armed'); }, 2500);
+}
+function openSaves() { renderSaves(); savesPop.hidden = false; savesBtn.classList.add('on'); savesBtn.setAttribute('aria-expanded', 'true'); }
+function closeSaves() { savesPop.hidden = true; savesBtn.classList.remove('on'); savesBtn.setAttribute('aria-expanded', 'false'); armed = null; }
+savesBtn.onclick = () => savesPop.hidden ? openSaves() : closeSaves();
+document.addEventListener('mousedown', e => { if (!savesPop.hidden && !savesPop.contains(e.target) && !savesBtn.contains(e.target)) closeSaves(); });
+document.getElementById('saves-form').onsubmit = e => {
+  e.preventDefault();
+  if (!picked.size) { saveNotice('선택한 노드가 없어 저장할 수 없습니다.'); return; }
+  const list = readSaves();
+  if (list.length >= SAVE_MAX) { saveNotice('저장은 최대 ' + SAVE_MAX + '개까지 가능합니다. 하나를 삭제해 주세요.'); return; }
+  const name = savesName.value.trim() || '빌드 ' + (list.length + 1);
+  list.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name, code: encodeBuild(), count: picked.size, t: Date.now() });
+  if (!writeSaves(list)) { saveNotice('이 브라우저에서는 저장할 수 없습니다. (저장 공간 차단 또는 시크릿 모드)'); return; }
+  savesName.value = '';
+  renderSaves();
+  saveNotice('저장했습니다.');
+};
+renderSaves();
+
 const q = document.getElementById('q');
 const hits = document.getElementById('hits');
 let matches = [], cursor = -1;
