@@ -201,3 +201,9 @@ canvas.drag { cursor: grabbing; }
 .save-edit:hover { border-color: rgba(167,139,250,.4); background: rgba(139,108,240,.14); color: #e3dcff; }
 .save-rename { width: 100%; min-width: 0; height: 26px; padding: 0 8px; border: 1px solid rgba(167,139,250,.6); border-radius: 6px; background: #0f111a; color: var(--text); font-size: 12px; }
 .save-rename:focus { outline: none; }
+.language-pill { cursor: pointer; font: inherit; font-size: 11px; }
+.language-pill:hover { border-color: rgba(167,139,250,.4); }
+.lang-opt { color: #858ba2; }
+.lang-opt.on { color: #fff; font-weight: 700; }
+.lang-sep { color: #5a5f78; }
+.box-text .sub { display: block; margin-top: 2px; color: #b9a8f5; font-size: 10px; }
