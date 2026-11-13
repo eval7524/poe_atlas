@@ -85,7 +85,7 @@
     var secObj = { el: s, box: box, groups: [], count: count, tab: null, id: sec.id, shown: count };
 
     sec.groups.forEach(function (g) {
-      var ge = el('div', 'dm-group');
+      var ge = el('div', 'dm-group' + (g.compact ? ' dm-compact' : ''));
       if (g.en) { var h3 = el('h3', '', g.ko || g.en); if (g.ko && g.ko !== g.en) h3.append(el('small', '', g.en)); ge.append(h3); }
       var items = [];
       var add = function (node, recs) {
