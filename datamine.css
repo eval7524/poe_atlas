@@ -101,3 +101,11 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-cost-label { color: var(--muted); font-size: 12px; font-weight: 600; margin-right: 2px; }
 .dm-costs .dm-cost { margin-top: 0; }
 .dm-nav { flex-wrap: wrap; } .dm-nav .dm-tab { flex: 1 1 auto; padding: 14px 12px; font-size: 16px; white-space: nowrap; }
+/* 제작대 요구 재화: 기본 | 부위별 추가 */
+.dm-costbox { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.dm-cost-h { margin-bottom: 5px; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .04em; }
+.dm-cost-base, .dm-cost-extra { padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(8,9,16,.45); }
+.dm-cost-plus { color: var(--accent); font-size: 20px; font-weight: 700; }
+.dm-cost-chip { display: inline-block; padding: 3px 10px; border: 1px solid rgba(242,199,92,.35); border-radius: 999px; background: rgba(242,199,92,.08); color: #f2d68a; font-size: 13px; }
+.dm-cost-row { display: flex; align-items: center; gap: 10px; padding: 3px 0; }
+.dm-cost-slot { min-width: 78px; color: #c9c5df; font-size: 13px; font-weight: 600; }
