@@ -27,6 +27,7 @@
     else { h4.append(document.createTextNode(r.ko || r.en)); if (r.ko && r.ko !== r.en) h4.append(el('small', '', r.en)); }
     if (r.en || r.ko) c.append(h4);
     lineEls(r).forEach(function (p) { c.append(p); });
+    if (r.chips && r.chips.length) { var cs = el('div', 'dm-chips'); r.chips.forEach(function (t) { cs.append(el('span', 'dm-chip', t)); }); c.append(cs); }
     if (r.cost) {
       var co = el('div', 'dm-costbox');
       var bs = el('div', 'dm-cost-base'); bs.append(el('div', 'dm-cost-h', '기본 요구 재화')); bs.append(el('div', 'dm-cost-chip', r.cost.base)); co.append(bs);

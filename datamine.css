@@ -126,3 +126,6 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-extra { margin-top: 8px; display: grid; gap: 6px; }
 .dm-extra p { margin: 0; padding: 7px 12px; border-left: 3px solid var(--accent); border-radius: 6px; background: rgba(8,9,16,.45); font-size: 13.5px; }
 .dm-ember-en { margin: 10px 0 0; padding-top: 8px; border-top: 1px solid var(--line); }
+
+.dm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.dm-chip { padding: 2px 9px; border: 1px solid var(--rule, #344339); border-radius: 999px; color: #a6b4aa; font-size: 12px; }
