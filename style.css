@@ -213,3 +213,5 @@ canvas.drag { cursor: grabbing; }
 .saves-active .tool-button { flex: 0 0 auto; min-height: 28px; padding: 0 10px; }
 #saves-list li.active { margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: 8px; background: rgba(242,199,92,.07); }
 #saves-list li.active .save-info strong { color: #f2d68a; }
+.header-links .header-tab { padding: 5px 11px; border: 1px solid rgba(242,199,92,.4); border-radius: 999px; background: rgba(242,199,92,.08); color: #f2d68a; font-size: 11px; text-decoration: none; white-space: nowrap; }
+.header-links .header-tab:hover { background: rgba(242,199,92,.16); color: #fff3cf; }
