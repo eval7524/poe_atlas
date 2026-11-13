@@ -100,3 +100,4 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-costs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
 .dm-cost-label { color: var(--muted); font-size: 12px; font-weight: 600; margin-right: 2px; }
 .dm-costs .dm-cost { margin-top: 0; }
+.dm-nav { flex-wrap: wrap; } .dm-nav .dm-tab { flex: 1 1 auto; padding: 14px 12px; font-size: 16px; white-space: nowrap; }
