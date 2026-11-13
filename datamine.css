@@ -91,7 +91,7 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-foot { margin: 12px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); }
 .dm-foot .dm-ko { color: var(--muted); font-size: 12px; }
 /* 제목만 있는 목록(그위넨 효과) */
-.dm-compact { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; align-items: stretch; }
+.dm-compact { display: grid; grid-template-columns: 1fr; gap: 8px; align-items: stretch; }
 .dm-compact > h3 { grid-column: 1 / -1; }
 .dm-compact .dm-card { margin: 0; padding: 10px 14px; }
 .dm-compact .dm-card h4 { margin: 0; font-size: 14px; }
