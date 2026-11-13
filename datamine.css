@@ -39,3 +39,31 @@ a { color: #b9a8f5; }
 .dm-footer p { margin: 0 0 6px; }
 mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 @media (max-width: 640px) { .dm-header h1 { font-size: 19px; } .dm-card { padding: 11px 12px; } }
+/* 섹션 토글 */
+.dm-sec { padding-top: 10px; }
+.dm-sec-head { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.dm-sec-head:hover { border-color: rgba(167,139,250,.5); }
+.dm-sec.open > .dm-sec-head { border-color: rgba(167,139,250,.45); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.dm-caret { width: 14px; color: var(--accent); }
+.dm-sec-title { font-size: 16px; font-weight: 700; }
+.dm-sec-head small { color: var(--muted); font-size: 12px; }
+.dm-sec-count { margin-left: auto; color: var(--muted); font-size: 12px; }
+.dm-sec-body { padding: 4px 12px 12px; border: 1px solid rgba(167,139,250,.45); border-top: 0; border-radius: 0 0 12px 12px; }
+/* 제웅 카드: 등급별 칸 */
+.dm-eff h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 15px; }
+.dm-slot { padding: 1px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 11px; font-weight: 500; }
+.dm-tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+.dm-tier { padding: 9px 11px; border: 1px solid var(--line); border-top: 3px solid #6b7090; border-radius: 8px; background: rgba(8,9,16,.45); }
+.dm-tier .dm-line:last-child { margin-bottom: 0; }
+.dm-tier-name { margin-bottom: 5px; color: #c9c5df; font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+.t-low { border-top-color: #7c8299; }
+.t-med { border-top-color: #5aa0f0; }
+.t-med .dm-tier-name { color: #8fbdf5; }
+.t-high { border-top-color: var(--gold); }
+.t-high .dm-tier-name { color: #f2d68a; }
+.t-queen { border-top-color: #e879a8; }
+.t-queen .dm-tier-name { color: #f2a0c4; }
+.t-uber { border-top-color: var(--accent); }
+.t-uber .dm-tier-name { color: #c4b5fd; }
+@media (max-width: 640px) { .dm-sec-body { padding: 4px 8px 10px; } .dm-tiers { grid-template-columns: 1fr; } }
+.dm-ko { word-break: keep-all; overflow-wrap: anywhere; }
