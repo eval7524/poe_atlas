@@ -25,7 +25,7 @@
     var c = el('article', 'dm-card'), h4 = el('h4');
     if (r.isId) h4.append(el('code', '', r.en));
     else { h4.append(document.createTextNode(r.ko || r.en)); if (r.ko && r.ko !== r.en) h4.append(el('small', '', r.en)); }
-    c.append(h4);
+    if (r.en || r.ko) c.append(h4);
     lineEls(r).forEach(function (p) { c.append(p); });
     if (r.meta.length) {
       var m = el('div', 'dm-meta');
