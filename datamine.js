@@ -114,7 +114,9 @@
     var count = sec.groups.reduce(function (n, g) { return n + g.records.length; }, 0);
     var s = el('section', 'dm-sec'); s.id = sec.id;
     var box = el('div', 'dm-sec-body'); s.append(box);
-    var secObj = { el: s, box: box, groups: [], count: count, tab: null, id: sec.id, shown: count };
+    var secObj = { el: s, box: box, groups: [], count: count, tab: null, id: sec.id, shown: count, sub: 0, subs: sec.id === 'viscera' };
+    var subnav = null;
+    if (secObj.subs) { subnav = el('div', 'dm-subnav'); box.append(subnav); secObj.subnav = subnav; }
 
     sec.groups.forEach(function (g) {
       var ge = el('div', 'dm-group' + (g.compact ? ' dm-compact' : ''));
@@ -137,7 +139,16 @@
         else if (sec.id === 'topic-05') add(threadCard(r), [r]);
         else add(plainCard(r), [r]);
       });
-      box.append(ge); secObj.groups.push({ el: ge, items: items });
+      box.append(ge);
+      var gi = secObj.groups.length;
+      var go = { el: ge, items: items, n: g.records.length };
+      secObj.groups.push(go);
+      if (subnav) {
+        if (ge.firstChild && ge.firstChild.tagName === 'H3') ge.firstChild.hidden = true;
+        var sb = el('button', 'dm-subtab'); sb.type = 'button'; sb.append(document.createTextNode(g.ko || g.en)); var sm = el('small', '', String(g.records.length)); sb.append(sm);
+        sb.addEventListener('click', function () { secObj.sub = gi; filter(); window.scrollTo({ top: 0 }); });
+        go.btn = sb; go.cnt = sm; subnav.append(sb);
+      }
     });
     body.append(s); sections.push(secObj);
 
@@ -152,7 +163,12 @@
     cards.forEach(function (c) { var ok = words.every(function (w) { return c.text.indexOf(w) >= 0; }); c.el.hidden = !ok; c.ok = ok; if (ok) shown += c.n; });
     sections.forEach(function (s) {
       var n = 0;
-      s.groups.forEach(function (g) { var a = g.items.some(function (i) { return i.ok; }); g.el.hidden = !a; g.items.forEach(function (i) { if (i.ok) n += i.n; }); });
+      s.groups.forEach(function (g, gi) {
+        var c = 0; g.items.forEach(function (i) { if (i.ok) c += i.n; });
+        n += c;
+        g.el.hidden = c === 0 || (s.subs && !searching && gi !== s.sub);
+        if (g.btn) { g.btn.classList.toggle('on', searching ? c > 0 : gi === s.sub); g.cnt.textContent = String(searching ? c : g.n); }
+      });
       s.shown = n;
       // 검색 중에는 일치하는 섹션을 모두 보여주고, 아니면 고른 탭만 보여줌
       s.el.hidden = searching ? n === 0 : s !== active;

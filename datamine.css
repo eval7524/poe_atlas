@@ -129,3 +129,9 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 
 .dm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .dm-chip { padding: 2px 9px; border: 1px solid var(--rule, #344339); border-radius: 999px; color: #a6b4aa; font-size: 12px; }
+
+.dm-subnav { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; padding-bottom: 12px; border-bottom: 1px solid #344339; }
+.dm-subtab { padding: 7px 16px; border: 1px solid #344339; border-radius: 999px; background: transparent; color: #a6b4aa; font-size: 14px; cursor: pointer; }
+.dm-subtab small { margin-left: 6px; opacity: .7; }
+.dm-subtab:hover { color: #e5ebe6; }
+.dm-subtab.on { background: #243a2e; border-color: #8cd2ad; color: #b0e4c3; }
