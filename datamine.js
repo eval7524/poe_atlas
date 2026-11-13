@@ -37,6 +37,25 @@
     }
     return c;
   }
+  // 기억의 실낱 카드: 소개 → 모드 목록(모드마다 박스) → 사용법
+  function threadCard(r) {
+    var c = el('article', 'dm-card dm-thread'), h4 = el('h4');
+    h4.append(document.createTextNode(r.ko || r.en)); if (r.ko && r.ko !== r.en) h4.append(el('small', '', r.en));
+    c.append(h4);
+    var hi = -1;
+    r.lines.forEach(function (l, i) { if (hi < 0 && /:\s*$/.test(l.en)) hi = i; });
+    var last = r.lines.length - 1, footer = /^Can be used/.test(r.lines[last].en) ? r.lines[last] : null;
+    var one = function (l, cls) { var p = el('p', cls || 'dm-line'); p.append(el('span', 'dm-ko', l.ko || l.en)); if (l.ko) p.append(el('span', 'dm-en', l.en)); return p; };
+    r.lines.forEach(function (l, i) { if (i < hi) c.append(one(l, 'dm-line dm-intro')); });
+    if (hi >= 0) {
+      var hd = one(r.lines[hi], 'dm-line dm-mods-head'); c.append(hd);
+      var list = el('div', 'dm-mods');
+      r.lines.forEach(function (l, i) { if (i > hi && !(footer && i === last)) { var b = el('div', 'dm-mod'); b.append(one(l)); list.append(b); } });
+      c.append(list);
+    }
+    if (footer) c.append(one(footer, 'dm-line dm-foot'));
+    return c;
+  }
   // 제웅 카드: 왼쪽에 이름·부위, 오른쪽에 등급별 줄(상급이 위, 하급이 아래)
   var EORDER = ['우버', '여왕', '상급', '상급1', '상급2', '상급3', '중급', '하급', '1', '2', '3', ''];
   function effigyCard(base, recs) {
@@ -81,7 +100,8 @@
           var recs = g.records.filter(function (x) { return x.base === r.base; });
           done[r.base] = 1;
           add(effigyCard(r.base, recs), recs);
-        } else add(plainCard(r), [r]);
+        } else if (sec.id === 'topic-05') add(threadCard(r), [r]);
+        else add(plainCard(r), [r]);
       });
       box.append(ge); secObj.groups.push({ el: ge, items: items });
     });
