@@ -97,3 +97,6 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-compact .dm-card h4 { margin: 0; font-size: 14px; }
 .dm-cost { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; padding: 3px 10px; border: 1px solid rgba(242,199,92,.35); border-radius: 999px; background: rgba(242,199,92,.08); color: #f2d68a; font-size: 12px; }
 .dm-cost b { color: #b9a46a; font-weight: 600; }
+.dm-costs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.dm-cost-label { color: var(--muted); font-size: 12px; font-weight: 600; margin-right: 2px; }
+.dm-costs .dm-cost { margin-top: 0; }
