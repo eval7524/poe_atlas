@@ -109,3 +109,7 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-cost-chip { display: inline-block; padding: 3px 10px; border: 1px solid rgba(242,199,92,.35); border-radius: 999px; background: rgba(242,199,92,.08); color: #f2d68a; font-size: 13px; }
 .dm-cost-row { display: flex; align-items: center; gap: 10px; padding: 3px 0; }
 .dm-cost-slot { min-width: 78px; color: #c9c5df; font-size: 13px; font-weight: 600; }
+.dm-cost-total { margin-left: auto; padding: 8px 12px; border: 1px solid rgba(167,139,250,.5); border-radius: 10px; background: rgba(139,108,240,.1); }
+.dm-cost-total .dm-cost-h { color: #c4b5fd; }
+.dm-cost-total .dm-cost-row { gap: 6px; flex-wrap: wrap; }
+@media (max-width: 640px) { .dm-cost-total { margin-left: 0; } }
