@@ -17,7 +17,7 @@
   }
   function textOf(secKo, recs) {
     return (secKo + ' ' + recs.map(function (r) {
-      return (r.ko || '') + ' ' + r.en + ' ' + r.lines.map(function (l) { return (l.ko || '') + ' ' + l.en; }).join(' ') + ' ' + r.meta.map(function (kv) { return kv[0] + ' ' + kv[1]; }).join(' ');
+      return (r.ko || '') + ' ' + (r.cost || '') + ' ' + r.en + ' ' + r.lines.map(function (l) { return (l.ko || '') + ' ' + l.en; }).join(' ') + ' ' + r.meta.map(function (kv) { return kv[0] + ' ' + kv[1]; }).join(' ');
     }).join(' ')).toLowerCase();
   }
   // 일반 카드
@@ -27,6 +27,7 @@
     else { h4.append(document.createTextNode(r.ko || r.en)); if (r.ko && r.ko !== r.en) h4.append(el('small', '', r.en)); }
     if (r.en || r.ko) c.append(h4);
     lineEls(r).forEach(function (p) { c.append(p); });
+    if (r.cost) { var co = el('div', 'dm-cost'); co.append(el('b', '', '요구 재화')); co.append(document.createTextNode(r.cost)); c.append(co); }
     if (r.meta.length) {
       var m = el('div', 'dm-meta');
       r.meta.forEach(function (kv) {
