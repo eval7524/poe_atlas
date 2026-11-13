@@ -62,14 +62,8 @@
   DM.sections.forEach(function (sec) {
     var count = sec.groups.reduce(function (n, g) { return n + g.records.length; }, 0);
     var s = el('section', 'dm-sec'); s.id = sec.id;
-    var head = el('button', 'dm-sec-head'); head.type = 'button'; head.setAttribute('aria-expanded', 'false');
-    head.append(el('span', 'dm-caret', '▸'));
-    head.append(el('span', 'dm-sec-title', sec.ko));
-    if (sec.en && sec.en !== sec.ko) head.append(el('small', '', sec.en));
-    head.append(el('span', 'dm-sec-count', count + '개'));
-    s.append(head);
-    var box = el('div', 'dm-sec-body'); box.hidden = true; s.append(box);
-    var secObj = { el: s, box: box, head: head, groups: [], open: false, forced: false, count: count };
+    var box = el('div', 'dm-sec-body'); s.append(box);
+    var secObj = { el: s, box: box, groups: [], count: count, tab: null, id: sec.id, shown: count };
 
     sec.groups.forEach(function (g) {
       var ge = el('div', 'dm-group');
@@ -93,38 +87,25 @@
     });
     body.append(s); sections.push(secObj);
 
-    var link = el('a', '', sec.ko); link.href = '#' + sec.id; link.append(el('small', '', String(count)));
-    link.addEventListener('click', function (ev) {
-      ev.preventDefault();
-      if (!secObj.open) setOpen(secObj, true);
-      s.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    nav.append(link);
-    head.addEventListener('click', function () { setOpen(secObj, !isOpen(secObj)); });
+    var tab = el('button', 'dm-tab'); tab.type = 'button'; tab.append(document.createTextNode(sec.ko)); tab.append(el('small', '', String(count)));
+    tab.addEventListener('click', function () { active = secObj; filter(); window.scrollTo({ top: 0 }); });
+    secObj.tab = tab; nav.append(tab);
   });
-  function isOpen(s) { return s.forced || s.open; }
-  function setOpen(s, v) {
-    if (s.forced) return;
-    s.open = v; render(s);
-  }
-  function render(s) {
-    var o = isOpen(s);
-    s.box.hidden = !o; s.head.setAttribute('aria-expanded', String(o));
-    s.head.firstChild.textContent = o ? '▾' : '▸';
-    s.el.classList.toggle('open', o);
-  }
+  var active = sections[0];
   function filter() {
     var words = q.value.toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
-    cards.forEach(function (c) { var ok = words.every(function (w) { return c.text.indexOf(w) >= 0; }); c.el.hidden = !ok; c.ok = ok; if (ok) shown += c.n; });
     var searching = words.length > 0;
+    cards.forEach(function (c) { var ok = words.every(function (w) { return c.text.indexOf(w) >= 0; }); c.el.hidden = !ok; c.ok = ok; if (ok) shown += c.n; });
     sections.forEach(function (s) {
-      var any = false;
-      s.groups.forEach(function (g) { var a = g.items.some(function (i) { return i.ok; }); g.el.hidden = !a; any = any || a; });
-      s.el.hidden = !any;
-      s.forced = searching && any;   // 검색 중에는 일치하는 섹션을 자동으로 펼침
-      render(s);
+      var n = 0;
+      s.groups.forEach(function (g) { var a = g.items.some(function (i) { return i.ok; }); g.el.hidden = !a; g.items.forEach(function (i) { if (i.ok) n += i.n; }); });
+      s.shown = n;
+      // 검색 중에는 일치하는 섹션을 모두 보여주고, 아니면 고른 탭만 보여줌
+      s.el.hidden = searching ? n === 0 : s !== active;
+      s.tab.classList.toggle('on', searching ? n > 0 : s === active);
+      s.tab.lastChild.textContent = searching ? String(n) : String(s.count);
     });
-    status.textContent = searching ? shown + ' / ' + total + '개 일치' : total + '개 항목';
+    status.textContent = searching ? shown + ' / ' + total + '개 일치' : '';
     empty.hidden = shown > 0;
   }
   q.addEventListener('input', filter);
