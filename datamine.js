@@ -37,21 +37,25 @@
     }
     return c;
   }
-  // 제웅 카드: 이름 하나에 등급별 칸
+  // 제웅 카드: 왼쪽에 이름·부위, 오른쪽에 등급별 줄(상급이 위, 하급이 아래)
+  var EORDER = ['우버', '여왕', '상급', '상급1', '상급2', '상급3', '중급', '하급', '1', '2', '3', ''];
   function effigyCard(base, recs) {
-    var c = el('article', 'dm-card dm-eff'), h4 = el('h4', '', base);
-    h4.append(el('span', 'dm-slot', recs[0].slot || ''));
-    c.append(h4);
-    recs.sort(function (a, b) { return TIERS.indexOf(a.tier) - TIERS.indexOf(b.tier); });
-    var grid = el('div', 'dm-tiers');
+    var c = el('article', 'dm-card dm-eff');
+    var left = el('div', 'dm-eff-name', base);
+    left.append(el('span', 'dm-slot', recs[0].slot || ''));
+    c.append(left);
+    recs.sort(function (a, b) { return EORDER.indexOf(a.tier) - EORDER.indexOf(b.tier); });
+    var rows = el('div', 'dm-rows');
     recs.forEach(function (r) {
-      var cell = el('div', 'dm-tier ' + (TCLS[r.tier] || ''));
-      cell.append(el('div', 'dm-tier-name', r.tier || '효과'));
-      lineEls(r).forEach(function (p) { cell.append(p); });
-      cell.title = (r.meta.filter(function (kv) { return kv[0] === 'ID'; })[0] || [0, ''])[1];
-      grid.append(cell);
+      var row = el('div', 'dm-row ' + (TCLS[r.tier] || ''));
+      row.append(el('span', 'dm-tier-name', r.tier || '효과'));
+      var txt = el('div', 'dm-row-text');
+      lineEls(r).forEach(function (p) { txt.append(p); });
+      row.append(txt);
+      row.title = (r.meta.filter(function (kv) { return kv[0] === 'ID'; })[0] || [0, ''])[1];
+      rows.append(row);
     });
-    c.append(grid);
+    c.append(rows);
     return c;
   }
 
