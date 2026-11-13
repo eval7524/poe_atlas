@@ -78,3 +78,4 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-sec { padding-top: 6px; }
 .dm-sec-body { padding: 0; border: 0; }
 @media (max-width: 640px) { .dm-nav .dm-tab { padding: 12px 8px; font-size: 15px; } .dm-search { top: 62px; } .dm-nav .dm-tab small { display: block; margin: 0; } }
+[hidden] { display: none !important; }
