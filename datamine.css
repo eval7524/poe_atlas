@@ -101,3 +101,16 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-cost-label { color: var(--muted); font-size: 12px; font-weight: 600; margin-right: 2px; }
 .dm-costs .dm-cost { margin-top: 0; }
 .dm-nav { flex-wrap: wrap; } .dm-nav .dm-tab { flex: 1 1 auto; padding: 14px 12px; font-size: 16px; white-space: nowrap; }
+/* 올플레임 */
+.dm-gnote { margin: 0 0 10px; padding: 8px 12px; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); }
+.dm-gnote .dm-ko { color: #c9c5df; font-size: 13px; }
+.dm-ember { padding: 14px 16px; }
+.dm-ember h4 { font-size: 16px; margin-bottom: 10px; }
+.dm-swap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.dm-swap-n { padding: 5px 12px; border: 1px solid rgba(242,199,92,.4); border-radius: 8px; background: rgba(242,199,92,.1); color: #f2d68a; font-size: 13px; white-space: nowrap; }
+.dm-swap-n b { margin-right: 3px; font-size: 18px; }
+.dm-swap-arrow { color: var(--accent); font-size: 18px; }
+.dm-swap-to { padding: 5px 12px; border: 1px solid rgba(167,139,250,.45); border-radius: 8px; background: rgba(139,108,240,.14); color: #e6dcff; font-size: 14px; font-weight: 600; }
+.dm-extra { margin-top: 8px; display: grid; gap: 6px; }
+.dm-extra p { margin: 0; padding: 7px 12px; border-left: 3px solid var(--accent); border-radius: 6px; background: rgba(8,9,16,.45); font-size: 13.5px; }
+.dm-ember-en { margin: 10px 0 0; padding-top: 8px; border-top: 1px solid var(--line); }

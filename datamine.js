@@ -17,7 +17,7 @@
   }
   function textOf(secKo, recs) {
     return (secKo + ' ' + recs.map(function (r) {
-      return (r.ko || '') + ' ' + (r.cost ? r.cost.map(function (cc) { return cc.join(' '); }).join(' ') : '') + ' ' + r.en + ' ' + r.lines.map(function (l) { return (l.ko || '') + ' ' + l.en; }).join(' ') + ' ' + r.meta.map(function (kv) { return kv[0] + ' ' + kv[1]; }).join(' ');
+      return (r.ko || '') + ' ' + (r.ember ? r.ember.to + ' ' + r.ember.extra.join(' ') + ' ' + r.ember.n : '') + ' ' + (r.cost ? r.cost.map(function (cc) { return cc.join(' '); }).join(' ') : '') + ' ' + r.en + ' ' + r.lines.map(function (l) { return (l.ko || '') + ' ' + l.en; }).join(' ') + ' ' + r.meta.map(function (kv) { return kv[0] + ' ' + kv[1]; }).join(' ');
     }).join(' ')).toLowerCase();
   }
   // 일반 카드
@@ -61,6 +61,20 @@
     if (footer) c.append(one(footer, 'dm-line dm-foot'));
     return c;
   }
+  // 올플레임 잉걸불 카드: 교체할 무리 수와 결과, 추가 효과를 따로 보여줌
+  function emberCard(r) {
+    var c = el('article', 'dm-card dm-ember'), h4 = el('h4', '', r.ko || r.en);
+    if (r.ko && r.ko !== r.en) h4.append(el('small', '', r.en));
+    c.append(h4);
+    var e = r.ember, row = el('div', 'dm-swap');
+    var n = el('span', 'dm-swap-n'); n.append(el('b', '', String(e.n))); n.append(document.createTextNode('개 무리')); row.append(n);
+    row.append(el('span', 'dm-swap-arrow', '→'));
+    row.append(el('span', 'dm-swap-to', e.to));
+    c.append(row);
+    if (e.extra.length) { var ex = el('div', 'dm-extra'); e.extra.forEach(function (t) { ex.append(el('p', '', t)); }); c.append(ex); }
+    c.append(el('p', 'dm-en dm-ember-en', e.en));
+    return c;
+  }
   // 제웅 카드: 왼쪽에 이름·부위, 오른쪽에 등급별 줄(상급이 위, 하급이 아래)
   var EORDER = ['우버', '여왕', '상급', '상급1', '상급2', '상급3', '중급', '하급', '1', '2', '3', ''];
   function effigyCard(base, recs) {
@@ -92,6 +106,7 @@
     sec.groups.forEach(function (g) {
       var ge = el('div', 'dm-group' + (g.compact ? ' dm-compact' : ''));
       if (g.en) { var h3 = el('h3', '', g.ko || g.en); if (g.ko && g.ko !== g.en) h3.append(el('small', '', g.en)); ge.append(h3); }
+      if (g.note) { var nt = el('p', 'dm-gnote'); nt.append(el('span', 'dm-ko', g.note.ko)); nt.append(el('span', 'dm-en', g.note.en)); ge.append(nt); }
       var items = [];
       var add = function (node, recs) {
         ge.append(node);
@@ -105,7 +120,8 @@
           var recs = g.records.filter(function (x) { return x.base === r.base; });
           done[r.base] = 1;
           add(effigyCard(r.base, recs), recs);
-        } else if (sec.id === 'topic-05') add(threadCard(r), [r]);
+        } else if (r.ember) add(emberCard(r), [r]);
+        else if (sec.id === 'topic-05') add(threadCard(r), [r]);
         else add(plainCard(r), [r]);
       });
       box.append(ge); secObj.groups.push({ el: ge, items: items });
