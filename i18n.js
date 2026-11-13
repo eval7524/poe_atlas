@@ -84,7 +84,7 @@ const EN = {
   '클릭하여 항목 선택 및 {pts}포인트 할당': 'Click to choose an option and allocate {pts} points',
   '클릭하여 {pts}포인트 할당': 'Click to allocate {pts} points',
   '확정 {n}회': 'Guaranteed ×{n}',
-  '데이터마이닝': 'Datamine',
+  '3.30 데이터마이닝': '3.30 Datamine',
   '3.30 데이터마이닝 한글 정리': '3.30 datamine (Korean)',
   '새 빌드로 저장': 'Save as new build',
   '불러온 빌드: {name}': 'Loaded build: {name}',
