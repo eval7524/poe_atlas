@@ -79,3 +79,14 @@ mark { background: rgba(242,199,92,.28); color: inherit; border-radius: 3px; }
 .dm-sec-body { padding: 0; border: 0; }
 @media (max-width: 640px) { .dm-nav .dm-tab { padding: 12px 8px; font-size: 15px; } .dm-search { top: 62px; } .dm-nav .dm-tab small { display: block; margin: 0; } }
 [hidden] { display: none !important; }
+/* 기억의 실낱 */
+.dm-thread { padding: 14px 16px; }
+.dm-thread h4 { font-size: 16px; }
+.dm-intro { margin-bottom: 4px; }
+.dm-mods-head { margin: 12px 0 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+.dm-mods-head .dm-ko { color: #f2d68a; font-size: 13px; font-weight: 600; }
+.dm-mods { display: grid; gap: 6px; }
+.dm-mod { padding: 8px 12px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; background: rgba(8,9,16,.45); }
+.dm-mod .dm-line { margin: 0; }
+.dm-foot { margin: 12px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); }
+.dm-foot .dm-ko { color: var(--muted); font-size: 12px; }
