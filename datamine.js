@@ -114,7 +114,7 @@
     var count = sec.groups.reduce(function (n, g) { return n + g.records.length; }, 0);
     var s = el('section', 'dm-sec'); s.id = sec.id;
     var box = el('div', 'dm-sec-body'); s.append(box);
-    var secObj = { el: s, box: box, groups: [], count: count, tab: null, id: sec.id, shown: count, sub: 0, subs: sec.id === 'viscera' };
+    var secObj = { el: s, box: box, groups: [], count: count, tab: null, id: sec.id, shown: count, sub: 0, subs: sec.id === 'viscera' || sec.id === 'veiled' };
     var subnav = null;
     if (secObj.subs) { subnav = el('div', 'dm-subnav'); box.append(subnav); secObj.subnav = subnav; }
 
