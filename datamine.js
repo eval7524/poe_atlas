@@ -161,22 +161,26 @@
     var words = q.value.toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
     var searching = words.length > 0;
     cards.forEach(function (c) { var ok = words.every(function (w) { return c.text.indexOf(w) >= 0; }); c.el.hidden = !ok; c.ok = ok; if (ok) shown += c.n; });
+    var here = 0;
     sections.forEach(function (s) {
-      var n = 0;
+      var n = 0, hereN = 0;
       s.groups.forEach(function (g, gi) {
         var c = 0; g.items.forEach(function (i) { if (i.ok) c += i.n; });
         n += c;
-        g.el.hidden = c === 0 || (s.subs && !searching && gi !== s.sub);
-        if (g.btn) { g.btn.classList.toggle('on', searching ? c > 0 : gi === s.sub); g.cnt.textContent = String(searching ? c : g.n); }
+        var cur = s === active && (!s.subs || gi === s.sub);
+        if (cur) hereN += c;
+        g.el.hidden = c === 0 || !cur;
+        if (g.btn) { g.btn.classList.toggle('on', gi === s.sub); g.cnt.textContent = String(searching ? c : g.n); }
       });
       s.shown = n;
-      // 검색 중에는 일치하는 섹션을 모두 보여주고, 아니면 고른 탭만 보여줌
-      s.el.hidden = searching ? n === 0 : s !== active;
-      s.tab.classList.toggle('on', searching ? n > 0 : s === active);
+      // 검색은 지금 보고 있는 탭(하위 탭 포함) 안에서만 적용, 다른 탭의 일치 개수는 탭 숫자로 표시
+      s.el.hidden = s !== active;
+      s.tab.classList.toggle('on', s === active);
       s.tab.lastChild.textContent = searching ? String(n) : String(s.count);
+      if (s === active) here = hereN;
     });
-    status.textContent = searching ? shown + ' / ' + total + '개 일치' : '';
-    empty.hidden = shown > 0;
+    status.textContent = searching ? here + '개 일치 (이 탭) · 전체 ' + shown + ' / ' + total + '개' : '';
+    empty.hidden = !searching || here > 0;
   }
   q.addEventListener('input', filter);
   filter();
